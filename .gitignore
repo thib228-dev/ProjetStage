@@ -1,0 +1,44 @@
+# === DJANGO BACKEND (PostgreSQL) ===
+django_Backend/env/
+django_Backend/__pycache__/
+django_Backend/*.py[cod]
+**/__pycache__/
+*.py[cod]
+*.log
+
+# === ENVIRONNEMENT VIRTUEL ===
+env/
+venv/
+.venv/
+
+# === NEXT.JS FRONTEND ===
+next_frontend/node_modules/
+next_frontend/.next/
+next_frontend/out/
+next_frontend/.env
+next_frontend/.env.local
+
+# === FICHIERS TEMPORAIRES & SYSTÈME ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === ÉDITEURS ===
+.vscode/
+.idea/
+
+# === LOGS & CACHES ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+.cache/
+.pytest_cache/
+coverage/
+htmlcov/
+
+# === DIVERS ===
+*.pem
+*.crt
+*.key
