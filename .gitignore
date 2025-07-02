@@ -1,8 +1,8 @@
 # === DJANGO BACKEND (PostgreSQL) ===
-django_Backend/env/
+Backend_django/env/
 .env 
-django_Backend/__pycache__/
-django_Backend/*.py[cod]
+Backend_django/__pycache__/
+Backend_django/*.py[cod]
 **/__pycache__/
 *.py[cod]
 *.log
@@ -13,11 +13,11 @@ venv/
 .venv/
 
 # === NEXT.JS FRONTEND ===
-next_frontend/node_modules/
-next_frontend/.next/
-next_frontend/out/
-next_frontend/.env
-next_frontend/.env.local
+frontend_next/node_modules/
+frontend_next/.next/
+frontend_next/out/
+frontend_next/.env
+frontend_next/.env.local
 
 # === FICHIERS TEMPORAIRES & SYSTÈME ===
 .DS_Store
