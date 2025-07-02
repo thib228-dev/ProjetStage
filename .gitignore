@@ -1,5 +1,6 @@
 # === DJANGO BACKEND (PostgreSQL) ===
 django_Backend/env/
+.env 
 django_Backend/__pycache__/
 django_Backend/*.py[cod]
 **/__pycache__/
