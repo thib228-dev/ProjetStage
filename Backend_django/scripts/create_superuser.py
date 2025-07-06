@@ -36,3 +36,5 @@ def run():
         print(f"Superuser '{username}' créé avec succès.")
     else:
         print(f"Superuser '{username}' existe déjà, aucune action nécessaire.")
+
+
