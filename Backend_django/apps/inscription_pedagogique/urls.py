@@ -14,5 +14,5 @@ router.register(r'inscription', InscriptionViewSet)
 router.register(r'periode-inscription', PeriodeInscriptionViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
