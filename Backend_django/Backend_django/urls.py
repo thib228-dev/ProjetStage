@@ -24,4 +24,3 @@ urlpatterns = [
     path('api/inscription/', include('apps.inscription_pedagogique.urls')),
     path('api/notes/', include('apps.page_professeur.urls')),
     path('api/auth/', include('apps.authentification.urls')),
-]
