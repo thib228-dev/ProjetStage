@@ -98,7 +98,8 @@ next_fronend/ : Contient le code du frontend développé avec Next.js.
 
 ### Backend (Django)
 cd ../Django_Backend/projetEpl
-pip install -r requirements.txt
+pip install -r requirements.txt ou py -m pip install -r requirements.txt
+
 python manage.py migrate
 python manage.py runserver
 
