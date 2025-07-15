@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.inscription_pedagogique',
     'apps.page_professeur',
     'apps.utilisateurs',
+    'apps.authentification',
     'rest_framework',
     'django_extensions',
 ]
@@ -54,6 +55,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",  # frontend React ou Next.js
+    "moz-extension://bf6479cc-3ec9-4e34-bf28-219a837f2d64",  # extension Firefox
+]
+
 
 ROOT_URLCONF = 'Backend_django.urls'
 

@@ -10,5 +10,5 @@ router.register(r'professeurs', ProfesseurViewSet)
 router.register(r'connexions', ConnexionViewSet)
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]
