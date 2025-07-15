@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/utilisateurs/', include('apps.utilisateurs.urls')),
     path('api/inscription/', include('apps.inscription_pedagogique.urls')),
     path('api/notes/', include('apps.page_professeur.urls')),
-]
+    path('api/auth/', include('apps.authentification.urls')),
