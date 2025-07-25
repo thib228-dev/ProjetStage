@@ -88,19 +88,19 @@ WSGI_APPLICATION = 'Backend_django.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-<<<<<<< HEAD
-        'NAME': config('DB_NAME'),  
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'), 
-=======
+<<<<<<<<< Temporary merge branch 1
         'NAME':'EPL_db',
         'USER': 'postgres',
         'PASSWORD': 'lena02',
         'HOST': 'localhost',
         'PORT': '5432',
->>>>>>> 7f5e99d4c164b58e9165807aeeab1878f36d95bb
+=========
+        'NAME': config('DB_NAME'),  
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'), 
+>>>>>>>>> Temporary merge branch 2
     }
 }
 
