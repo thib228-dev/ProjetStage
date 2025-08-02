@@ -1,4 +1,4 @@
-import MenuLateralDashboard from "../../../components/ui/MenuLateralDashboard";
+import MenuLateralDashboard from "../../../components/navigation/MenuLateralDashboard";
 import HeaderConnexion from "../../../components/ui/HeaderConnexion";
 
 export default function DashboardLayout({ children }) {

@@ -5,7 +5,7 @@ import ProjetsEncadresProf from "@/features/enseignant/dashboard/projets/Projets
 
 export default function pageProjetsEncadresProf() {
   return (
-    <main className="p-6">
+    <main className="w-full">
       <ProjetsEncadresProf />
     </main>
   );

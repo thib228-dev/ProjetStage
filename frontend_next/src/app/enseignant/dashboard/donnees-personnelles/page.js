@@ -5,7 +5,7 @@ import DonneesPersonnellesProf from "@/features/enseignant/dashboard/donnees-per
 
 export default function PageDonneesPersonnellesProf() {
   return (
-    <main className="p-6 space-y-8">
+    <main className="w-full">
       <DonneesPersonnellesProf />
     </main>
   );

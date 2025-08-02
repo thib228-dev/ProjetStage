@@ -3,11 +3,11 @@ import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaVenusMars, FaGraduationC
 
 export default function DonneesPersonnelles() {
   return (
-    <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl px-10 py-12 w-full max-w-3xl animate-fade-in border border-blue-100">
-      <h2 className="flex items-center gap-3 text-3xl font-extrabold text-blue-900 mb-8 drop-shadow">
-        <FaUser className="text-blue-700 text-3xl" /> Mes données personnelles
+    <div className="bg-transparent backdrop-blur-2xl  shadow-1xl px-10 py-12 w-full animate-fade-in ">
+      <h2 className="flex items-center gap-3 text-3xl font-extrabold text-blue-900 mb-8 drop-shadow ">
+        <FaUser className="text-blue-700 text-3xl " /> Mes données personnelles
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center">
         <div className="flex items-center gap-2">
           <FaUser className="text-blue-500" />
           <div>

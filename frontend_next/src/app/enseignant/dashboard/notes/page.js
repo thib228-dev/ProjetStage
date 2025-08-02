@@ -5,7 +5,7 @@ import NotesASaisirProf from "@/features/enseignant/dashboard/notes/NotesASaisir
 
 export default function PageNotesASaisirProf() {
   return (
-    <main className="p-6">
+    <main className="w-full">
       <NotesASaisirProf />
     </main>
   );

@@ -1,82 +1,100 @@
+"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
+const menuItems = [
+  { label: "Accueil", href: "/" },
+  {
+    label: "Étudiant",
+    children: [     
+      { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
+      { label: "Données personnelles", href: "/etudiant/dashboard/donnees-personnelles" },
+      { label: "Notes", href: "/etudiant/dashboard/notes" },
+      { label: "Statistiques", href: "/etudiant/dashboard/statistiques" },
+    ],
+  },
+  {
+    label: "Enseignant",
+    children: [
+      { label: "articles", href: "/enseignant/articles" },
+      { label: "Cours", href: "/enseignant/cours" },
+      { label: "Encadrements", href: "/enseignant/encadrements" },
+      { label: "projets", href: "/enseignant/projets" },
+      {label: "informations", href: "/enseignant/dashboard/donnees-personnelles" },
+    ],
+  },
+  {
+    label: "Personnel administratif",
+    children: [
+      { label: "Secretaire", href: "/administration/dashboard/enseignants" },
+      { label: "chef service examen", href: "/administration/dashboard/notes" },
+      { label: "responsable inscription", href: "/administration/dashboard/etudiants" },
+    ],
+  },
+  { label: "Service examen", href: "/notes" },
+  { label: "Nos programmes", href: "/programmes" },
+  { label: "Contactez-nous", href: "/contact" },
+];
+
 export default function Header() {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const navLinks = [
-    { href: "/", label: "Accueil" },
-    { href: "/a-propos", label: "À propos" },
-    { href: "/contact", label: "Contact" },
-  ];
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  const handleDropdown = (label) => {
+    setOpenDropdown((prev) => (prev === label ? null : label));
+  };
 
   return (
-    <header className="w-full bg-white/80 backdrop-blur-md shadow flex items-center justify-between px-4 sm:px-8 py-3 fixed top-0 left-0 z-20">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="font-extrabold text-blue-800 text-2xl tracking-wide focus:outline-none focus:ring-2 focus:ring-blue-400 rounded transition hover:text-blue-900">
-          EPLPEDAGO
+    <header className="w-full bg-white/80 backdrop-blur-md shadow fixed top-0 left-0 z-20 px-4 sm:px-8 py-3 h-16">
+      <div className="flex justify-between items-center">
+        <Link href="/" className="font-extrabold text-blue-800 text-2xl tracking-wide">
+            <img src="images/logo-epl.png"  className="h-10 w-auto" />
         </Link>
-      </div>
-      {/* Desktop nav */}
-      <nav className="hidden sm:flex gap-8 font-semibold text-base">
-        {navLinks.map(({ href, label }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={
-                (isActive
-                  ? "text-blue-700 font-bold shadow-sm bg-blue-100/70 "
-                  : "text-gray-700 ") +
-                "px-3 py-1 rounded transition hover:bg-blue-100 hover:text-blue-900"
-              }
-              aria-current={isActive ? "page" : undefined}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-      {/* Mobile menu button */}
-      <button
-        className="sm:hidden flex items-center px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        aria-label="Ouvrir le menu"
-        onClick={() => setMenuOpen((v) => !v)}
-      >
-        <svg className="w-7 h-7 text-blue-800" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          {menuOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 8h16M4 16h16" />
-          )}
-        </svg>
-      </button>
-      {/* Mobile nav */}
-      {menuOpen && (
-        <nav className="absolute top-full left-0 w-full bg-white/95 shadow-lg flex flex-col items-center gap-2 py-4 sm:hidden animate-fade-in z-30">
-          {navLinks.map(({ href, label }) => {
-            const isActive = pathname === href;
+        <nav className="hidden sm:flex gap-6 font-semibold relative">
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href;
+            const hasChildren = !!item.children;
+
             return (
-              <Link
-                key={href}
-                href={href}
-                className={
-                  (isActive
-                    ? "text-blue-700 font-bold shadow-sm bg-blue-100/70 "
-                    : "text-gray-700 ") +
-                  "w-full text-center px-3 py-2 rounded transition hover:bg-blue-100 hover:text-blue-900"
-                }
-                aria-current={isActive ? "page" : undefined}
-                onClick={() => setMenuOpen(false)}
+              <div
+                key={item.label}
+                className="relative group"
+                onMouseEnter={() => handleDropdown(item.label)}
+                onMouseLeave={() => setOpenDropdown(null)}
               >
-                {label}
-              </Link>
+                <button
+                  className={`px-3 py-2 rounded transition flex items-center gap-1 ${
+                    isActive
+                      ? "text-blue-700 font-bold bg-blue-100/70"
+                      : "text-gray-700 hover:bg-blue-100"
+                  }`}
+                >
+                  {item.label}
+                  {hasChildren && (
+                    <span className="text-xs">▼</span> 
+                  )}
+                </button>
+
+                {/* Dropdown */}
+                {hasChildren && openDropdown === item.label && (
+                  <div className="absolute top-full left-0 bg-white shadow-md  w-56 z-30 ">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition `}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
-      )}
+      </div>
     </header>
   );
-} 
+}

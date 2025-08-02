@@ -5,7 +5,7 @@ import Statistiques from "@/features/etudiant/dashboard/statistiques/Statistique
 
 export default function PageStatistiques() {
   return (
-    <main className="p-6">
+    <main className="w-full">
       <Statistiques />
     </main>
   );

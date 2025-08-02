@@ -5,7 +5,7 @@ import Professeurs from "@/features/etudiant/dashboard/professeurs/Professeurs";
 
 export default function PageProfesseurs() {
   return (
-    <main className="p-6">
+    <main className="w-full">
       <Professeurs />
     </main>
   );

@@ -5,7 +5,7 @@ import DonneesPersonnelles from "@/features/etudiant/dashboard/donnees-personnel
 
 export default function PageDonneesPersonnelles() {
   return (
-    <main className="p-6">
+    <main className=" w-full ">
       <DonneesPersonnelles />
     </main>
   );
