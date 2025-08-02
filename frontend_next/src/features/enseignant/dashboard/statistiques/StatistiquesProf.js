@@ -3,11 +3,11 @@ import { FaChartBar } from "react-icons/fa";
 
 export default function StatistiquesProf() {
   return (
-    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-2xl animate-fade-in">
+    <div className="bg-transparent backdrop-blur-md  px-8 py-10 w-full animate-fade-in">
       <h2 className="flex items-center gap-3 text-2xl font-bold text-orange-900 mb-6">
         <FaChartBar className="text-orange-700" /> Statistiques
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-10">
         <div className="flex flex-col items-center">
           <span className="text-4xl font-extrabold text-orange-700">4</span>
           <span className="text-gray-500">Cours</span>

@@ -1,4 +1,4 @@
-import MenuLateralProfesseur from "../../../components/ui/MenuLateralProfesseur";
+import MenuLateralProfesseur from "../../../components/navigation/MenuLateralProfesseur";
 import HeaderConnexion from "../../../components/ui/HeaderConnexion";
 
 

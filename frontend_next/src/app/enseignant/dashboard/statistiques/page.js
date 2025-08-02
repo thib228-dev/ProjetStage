@@ -5,7 +5,7 @@ import StatistiquesProf from "@/features/enseignant/dashboard/statistiques/Stati
 
 export default function PageStatistiquesProf() {
   return (
-    <main className="p-6">
+    <main className="w-full">
       <StatistiquesProf />
     </main>
   );

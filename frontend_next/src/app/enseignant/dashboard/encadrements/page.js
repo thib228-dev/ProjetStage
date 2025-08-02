@@ -5,7 +5,7 @@ import EncadrementsProf from "@/features/enseignant/dashboard/encadrements/Encad
 
 export default function PageEncadrementsProf() {
   return (
-    <main className="p-6 space-y-8">
+    <main className="w-full">
       <EncadrementsProf />
     </main>
   );

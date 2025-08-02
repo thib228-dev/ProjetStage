@@ -9,11 +9,11 @@ const professeurs = [
 
 export default function Professeurs() {
   return (
-    <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl px-10 py-12 w-full max-w-4xl animate-fade-in border border-blue-100">
-      <h2 className="flex items-center gap-3 text-3xl font-extrabold text-blue-900 mb-8 drop-shadow">
+    <div className="bg-transparent backdrop-blur-2xl   px-10 py-12 w-full  animate-fade-in ">
+      <h2 className="flex items-center gap-3 text-3xl font-extrabold text-blue-900 mb-8 drop-shadow justify-center">
         <FaUserTie className="text-blue-700 text-3xl" /> Mes Professeurs
       </h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mt-30">
         <table className="min-w-full border-separate border-spacing-y-2">
           <thead>
             <tr className="text-left text-blue-800">
@@ -25,7 +25,12 @@ export default function Professeurs() {
           </thead>
           <tbody>
             {professeurs.map((prof, idx) => (
-              <tr key={idx} className="bg-white/70 hover:bg-blue-50 transition rounded-xl shadow">
+              <tr
+                key={idx}
+                className={`${
+                  idx % 2 === 0 ? "bg-white/70" : "bg-blue-100/60"
+                } hover:bg-blue-50 transition rounded-xl shadow`}
+              >
                 <td className="px-3 py-2 font-semibold text-blue-900">{prof.nom}</td>
                 <td className="px-3 py-2">{prof.prenom}</td>
                 <td className="px-3 py-2">{prof.email}</td>
@@ -33,6 +38,7 @@ export default function Professeurs() {
               </tr>
             ))}
           </tbody>
+
         </table>
       </div>
     </div>

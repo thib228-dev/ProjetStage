@@ -1,4 +1,4 @@
-import MenuLateralAdmin from "../../../components/ui/MenuLateralAdmin";
+import MenuLateralAdmin from "../../../components/navigation/MenuLateralAdmin";
 import HeaderConnexion from "../../../components/ui/HeaderConnexion";
 
 

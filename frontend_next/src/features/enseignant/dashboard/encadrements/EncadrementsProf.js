@@ -8,11 +8,11 @@ const encadrements = [
 
 export default function EncadrementsProf() {
   return (
-    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-3xl animate-fade-in">
+    <div className="bg-transparent backdrop-blur-md  px-8 py-10 w-full  animate-fade-in">
       <h2 className="flex items-center gap-3 text-2xl font-bold text-orange-900 mb-6">
         <FaUsers className="text-orange-700" /> Encadrements
       </h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mt-10">
         <table className="min-w-full border-separate border-spacing-y-2">
           <thead>
             <tr className="text-left text-orange-800">

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaClipboardList, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 const courses = [
@@ -11,6 +12,10 @@ const courses = [
 ];
 
 export default function CoursProf() {
+const router = useRouter();
+const handleSaisirNotes = () => {
+    router.push('/enseignant/dashboard/notes');
+  };
   const [selectedFiliere, setSelectedFiliere] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
@@ -53,7 +58,7 @@ export default function CoursProf() {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-6xl animate-fade-in">
+    <div className="bg-transparent  backdrop-blur-md   px-8 py-10 w-full  animate-fade-in">
       {/* Titre avec année scolaire */}
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl font-bold text-orange-900">
@@ -65,7 +70,7 @@ export default function CoursProf() {
       </div>
 
       {/* Filtre */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 mt-10">
         <h2 className="flex items-center gap-3 text-lg font-semibold text-orange-900">
           <FaClipboardList className="text-orange-700" />
           <span>Filtrer par</span>
@@ -171,6 +176,7 @@ export default function CoursProf() {
           Informations sur l'UE
         </button>
         <button
+        onClick={handleSaisirNotes}
           className={`${
             selectedCourse
               ? 'bg-orange-500 hover:bg-orange-600 text-white'
