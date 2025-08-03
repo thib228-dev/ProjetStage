@@ -30,10 +30,10 @@ const menuItems = [
   {
     label: "Enseignant",
     children: [
-      { label: "articles", href: "/enseignant/articles" },
-      { label: "Cours", href: "/enseignant/cours" },
-      { label: "Encadrements", href: "/enseignant/encadrements" },
-      { label: "projets", href: "/enseignant/projets" },
+      { label: "articles", href: "/enseignant/dashboard/articles" },
+      { label: "Cours", href: "/enseignant/dashboard/cours" },
+      { label: "Encadrements", href: "/enseignant/dashboard/encadrements" },
+      { label: "projets", href: "/enseignant/dashboard/projets" },
       {
         label: "informations",
         href: "/enseignant/dashboard/donnees-personnelles",
@@ -50,7 +50,7 @@ const menuItems = [
   },
   { label: "Service examen", href: "/notes" },
   { label: "Nos programmes", href: "/programmes" },
-  { label: "Contactez-nous", href: "@/contact" },
+  { label: "Contactez-nous", href: "/contact" },
 ];
 
 export default function Header() {
@@ -86,16 +86,29 @@ export default function Header() {
                 onMouseEnter={() => handleDropdown(item.label)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
-                <button
-                  className={`px-3 py-2 rounded transition flex items-center gap-1 ${
-                    isActive
-                      ? "text-blue-700 font-bold bg-blue-100/70"
-                      : "text-gray-700 hover:bg-blue-100"
-                  }`}
-                >
-                  {item.label}
-                  {hasChildren && <span className="text-xs">▼</span>}
-                </button>
+                {hasChildren ? (
+                  <button
+                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${
+                      isActive
+                        ? "text-blue-700 font-bold bg-blue-100/70"
+                        : "text-gray-700 hover:bg-blue-100"
+                    }`}
+                  >
+                    {item.label}
+                    <span className="text-xs">▼</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${
+                      isActive
+                        ? "text-blue-700 font-bold bg-blue-100/70"
+                        : "text-gray-700 hover:bg-blue-100"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                )}
 
                 {/* Dropdown */}
                 {hasChildren && openDropdown === item.label && (

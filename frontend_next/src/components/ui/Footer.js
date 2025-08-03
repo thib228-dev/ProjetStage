@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FaFacebook, FaInstagram, FaTwitter, FaPhone, FaEnvelope, FaMapMarkerAlt, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaPhone, FaEnvelope, FaMapMarkerAlt, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -20,13 +20,13 @@ export default function Footer() {
           <h3 className="text-lg font-semibold mb-3">Contact</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
-              <FaPhone /> +228 90 00 00 00
+              <FaPhone />  22 25 66 42
             </li>
             <li className="flex items-center gap-2">
               <FaEnvelope /> contact@epl.ul
             </li>
             <li className="flex items-center gap-2">
-              <FaMapMarkerAlt /> Université de Lomé, Togo
+              <FaMapMarkerAlt />01BP1515,  Université de Lomé, Togo
             </li>
           </ul>
         </div>
@@ -42,7 +42,7 @@ export default function Footer() {
               <FaLinkedin />
             </a>
           </div>
-        </div>
+        </div> 
 
       </div>
 

@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import Link from "next/link";
 
 const ues = [
   { code: "INF 130", libelle: "Structure de données", credits: 4 },
@@ -19,6 +21,10 @@ export default function NouvelEtudiantStep4({onSubmit}) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 font-sans flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pt-24">
+        <Link
+          href="/etudiant/inscription/etape-3"
+          className="text-black font-semibold hover:underline mt-6 self-start px-2">← page précédente
+        </Link>
         {/* Étapes d'inscription */}
         <div className="flex items-center justify-center gap-6 mb-10">
           {[1, 2, 3, 4].map((step) => (

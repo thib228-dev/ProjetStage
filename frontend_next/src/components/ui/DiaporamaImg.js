@@ -7,13 +7,13 @@ import Link from "next/link";
 
 const slides = [
   {
-    image: "/images/epl-building.png",
+    image: "/images/epl.jpg",
     title: "Bienvenue à l'EPL ! École au service de l'excellence",
     description: "",
     link: "/en-savoir-plus",
   },
   {
-    image: "/images/epl-gaya.jpg",
+    image: "/images/etudiants.jpg",
     title: "Autre slide title",
     description: "",
     link: "/en-savoir-plus",
@@ -61,16 +61,16 @@ export default function HeroSlider() {
           />
 
           {/* Couche bleu foncé en overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 opacity-70"></div>
+          <div className="absolute inset-0 bg-black/60"></div>
 
           {/* SVG bulles décoratives */}
           <div className="absolute inset-0 z-20 pointer-events-none opacity-30">
             <svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10%" cy="20%" r="30" fill="blue" opacity="0.5" />
-              <circle cx="80%" cy="30%" r="40" fill="blue" opacity="0.5" />
-              <circle cx="50%" cy="80%" r="100" fill="blue" opacity="0.5" />
-              <circle cx="70%" cy="60%" r="100" fill="blue" opacity="0.75" />
-              <circle cx="25%" cy="75%" r="100" fill="blue" opacity="0.5" />
+              <circle cx="10%" cy="20%" r="30" fill="white" opacity="0.5" />
+              <circle cx="80%" cy="30%" r="40" fill="white" opacity="0.5" />
+              <circle cx="50%" cy="80%" r="100" fill="white" opacity="0.5" />
+              <circle cx="70%" cy="60%" r="100" fill="white" opacity="0.75" />
+              <circle cx="25%" cy="75%" r="100" fill="white" opacity="0.5" />
             </svg>
           </div>
 

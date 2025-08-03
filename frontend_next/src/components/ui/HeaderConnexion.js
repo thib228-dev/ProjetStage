@@ -16,7 +16,7 @@ export default function NavbarRetourAccueil() {
   };
 
   return (
-    <nav className=" text-white flex justify-between items-center px-4 py-4 shadow-sm border-b border-blue-500/50">
+    <nav className=" text-white flex justify-between items-center px-4 py-5 shadow-sm border-b border-blue-500 bg-blue-900">
       {/* Bouton retour  */}
       <div 
         className="flex items-center gap-2 cursor-pointer hover:bg-blue-500/20 px-3 py-1 rounded-lg transition-all duration-200" 
