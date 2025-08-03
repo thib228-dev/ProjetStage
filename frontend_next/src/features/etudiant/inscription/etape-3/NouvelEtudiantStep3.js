@@ -21,7 +21,7 @@ export default function NouvelEtudiantStep3({onSubmit}) {
             <label className="block text-gray-700 font-semibold mb-2">Parcours</label>
             <select className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70">
               <option value="">Sélectionnez le parcours</option>
-              <option value="Licence">Licence</option>
+              <option value="Licence">Licence fondemmentale</option>
               <option value="Licence Pro">Licence Professionnelle</option>
               <option value="Master">Master</option>
             </select>

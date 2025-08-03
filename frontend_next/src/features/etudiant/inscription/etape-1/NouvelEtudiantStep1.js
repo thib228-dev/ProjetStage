@@ -1,9 +1,16 @@
 import React from "react";
+import Link from "next/link";
 
 export default function NouvelEtudiantStep1({ onSubmit }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 font-sans flex flex-col">
+    <div className=" bg-gradient-to-br from-blue-150 via-yellow-50 to-blue-200 font-sans flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pt-24">
+      {/* retour*/}
+        <div className="w-full max-w-lg mb-6 self-start px-2">
+          <Link href="/" className="text-blue-700 font-semibold hover:underline">
+             Retour à l’accueil
+          </Link>
+        </div>
         {/* Étapes d'inscription */}
         <div className="flex items-center justify-center gap-6 mb-10">
           {[1, 2, 3, 4].map((step) => (
@@ -16,30 +23,30 @@ export default function NouvelEtudiantStep1({ onSubmit }) {
         {/* Formulaire */}
       
         <form   onSubmit={onSubmit}
-        className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-lg flex flex-col gap-6 animate-fade-in">
+        className="bg-transparent backdrop-blur-md px-8 py-10 w-full max-w-lg flex flex-col gap-6 animate-fade-in">
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Nom</label>
-            <input type="text" className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Entrez votre nom" />
+            <input type="text" className="w-full px-4 py-2 rounded-lg border border-black-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Entrez votre nom" />
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Prénom</label>
-            <input type="text" className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Entrez votre prénom" />
+            <input type="text" className="w-full px-4 py-2 rounded-lg border border-black-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Entrez votre prénom" />
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Email</label>
-            <input type="email" className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="exemple@email.com" />
+            <input type="email" className="w-full px-4 py-2 rounded-lg border border-black-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="exemple@email.com" />
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Contact</label>
-            <input type="tel" className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Numéro de téléphone" />
+            <input type="tel" className="w-full px-4 py-2 rounded-lg border border-black-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" placeholder="Numéro de téléphone" />
           </div>
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Date de naissance</label>
-            <input type="date" className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" />
+            <input type="date" className="w-full px-4 py-2 rounded-lg border border-black-200 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70" />
           </div>
           <div className="flex justify-between mt-6 gap-4">
-            <button type="button" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-full shadow transition-all">Annuler</button>
-            <button type="submit" className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-8 rounded-full shadow transition-all">Suivant</button>
+            <button type="button" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8  shadow transition-all">Annuler</button>
+            <button type="submit" className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-8  shadow transition-all">Suivant</button>
           </div>
         </form>
       </main>

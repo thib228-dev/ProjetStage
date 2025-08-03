@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import Formulaire from "@/components/ui/formulaire";
+import Formulaire from "@/components/ui/Formulaire.js";
 import Link from "next/link";
 
 export default function ConnexionEtudiant() {
