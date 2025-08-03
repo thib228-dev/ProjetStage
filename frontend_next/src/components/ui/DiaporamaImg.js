@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import Link from "next/link";
 const slides = [
   {
     image: "/images/epl-building.png",
-    title: "Bievenue à L'EPL!, Ecole au service de l'exellence",
+    title: "Bienvenue à l'EPL ! École au service de l'excellence",
     description: "",
     link: "/en-savoir-plus",
   },
@@ -43,7 +43,7 @@ export default function HeroSlider() {
   }, []);
 
   return (
-    <div className="relative h-[700px] w-full  overflow-hidden">
+    <div className="relative h-[700px] w-full overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -59,25 +59,38 @@ export default function HeroSlider() {
   className="rounded-none"
   priority={index === 0}
 />
-          {/* Overlay sombre */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-blue-600 to-blue-900 opacity-70"></div>
 
-         {/* Texte divisé avec une barre verticale */}
-          <div className="absolute  inset-0 flex items-center justify-center text-white px-6">
-            <div className="flex items-center gap-10 bg-transparent p-6 ">
-              
-              {/* Colonne gauche : Titre */}
+          {/* Couche bleu foncé en overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 opacity-70"></div>
+
+          {/* SVG bulles décoratives */}
+          <div className="absolute inset-0 z-20 pointer-events-none opacity-30">
+            <svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10%" cy="20%" r="30" fill="blue" opacity="0.5" />
+              <circle cx="80%" cy="30%" r="40" fill="blue" opacity="0.5" />
+              <circle cx="50%" cy="80%" r="100" fill="blue" opacity="0.5" />
+              <circle cx="70%" cy="60%" r="100" fill="blue" opacity="0.75" />
+              <circle cx="25%" cy="75%" r="100" fill="blue" opacity="0.5" />
+            </svg>
+          </div>
+
+          {/* Contenu centré */}
+          <div className="absolute inset-0 flex items-center justify-center text-white px-6 z-30">
+            <div className="flex items-center gap-10 bg-transparent p-6">
+              {/* Colonne gauche */}
               <div className="text-right">
-                <h2 className="text-3xl lg:text-4xl font-bold max-w-md">{slide.title}</h2>
+                <h2 className="text-3xl lg:text-4xl font-bold max-w-md">
+                  {slide.title}
+                </h2>
               </div>
-          
+
               {/* Barre verticale */}
-              <div className="w-[2px] h-16 bg-white opacity-50"></div>
-          
-              {/* Colonne droite : bouton */}
+              <div className="w-[3px] h-50 bg-white opacity-100"></div>
+
+              {/* Colonne droite */}
               <div className="text-left">
                 <Link href={slide.link}>
-                  <span className="inline-block bg-orange-500 px-5 py-2 rounded hover:bg-orange-600 transition font-semibold">
+                  <span className="inline-block bg-orange-600 px-5 py-2 rounded hover:bg-blue-600 transition font-semibold">
                     En savoir plus
                   </span>
                 </Link>
@@ -90,14 +103,14 @@ export default function HeroSlider() {
       {/* Boutons de navigation */}
       <button
         onClick={prevSlide}
-        className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-btransparent text-white p-3 rounded-full shadow-lg hover:bg-blue-900 transition z-20 border border-white"
+        className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-transparent text-white p-3 rounded-full shadow-lg hover:bg-blue-900 transition z-40 border border-white"
       >
         <FaChevronLeft className="text-4xl" />
       </button>
 
       <button
         onClick={nextSlide}
-        className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-btransparent text-white p-3 rounded-full shadow-lg hover:bg-blue-900 transition z-20 border border-white"
+        className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-transparent text-white p-3 rounded-full shadow-lg hover:bg-blue-900 transition z-40 border border-white"
       >
         <FaChevronRight className="text-4xl" />
       </button>
