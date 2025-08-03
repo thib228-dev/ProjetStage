@@ -52,14 +52,13 @@ export default function HeroSlider() {
           }`}
         >
           <Image
-            src={slide.image}
-            alt={slide.title}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-none"
-            priority={index === 0}
-          />
-
+  src={slide.image}
+  alt={slide.title}
+  fill
+  style={{ objectFit: "cover" }}
+  className="rounded-none"
+  priority={index === 0}
+/>
           {/* Overlay sombre */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-200 via-blue-600 to-blue-900 opacity-70"></div>
 
