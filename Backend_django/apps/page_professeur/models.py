@@ -1,5 +1,7 @@
 from django.db import models
-from ..utilisateurs.models import Professeur, Etudiant
+from ..utilisateurs.models import Professeur, Etudiant, ResponsableSaisieNote
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 
 # Create your models here.
@@ -9,15 +11,15 @@ class UE(models.Model):
     code = models.CharField(max_length=50)
     nbre_credit = models.IntegerField()
     composite = models.BooleanField(default=False)
-    professeur = models.ForeignKey(Professeur, on_delete=models.CASCADE, related_name='ues')
+    
 
 class Evaluation(models.Model):
-    ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name='evaluations')
+    ue = models.ForeignKey(UE,on_delete=models.CASCADE, related_name='evaluations')
     type = models.CharField(max_length=50)
     poids = models.FloatField()
 
 class Note(models.Model):
-    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='notes')
     evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name='notes')
     note = models.FloatField()
 
@@ -54,3 +56,42 @@ class Encadrement(models.Model):
     annee = models.CharField(max_length=10)
     lien = models.URLField(blank=True)
 
+
+class PeriodeSaisie(models.Model):
+    numero = models.CharField(max_length=50)
+    date_debut = models.DateField()
+    date_fin = models.DateField()
+    active = models.BooleanField(default=False)
+    responsable = models.ForeignKey(
+        ResponsableSaisieNote,
+        on_delete=models.CASCADE,
+        related_name='periodes_saisie'
+    )
+
+    def clean(self):
+        if self.date_fin < self.date_debut:
+            raise ValidationError("La date de fin doit être postérieure à la date de début.")
+        if self._state.adding:  # uniquement à la création
+            today = timezone.now().date()
+            if self.date_debut < today or self.date_fin < today:
+                raise ValidationError("Les dates de début et de fin doivent être dans le futur.")
+
+    def save(self, *args, **kwargs):
+        today = timezone.now().date()
+
+        # Si la période a démarré et qu'elle est toujours dans sa plage, active automatiquement
+        if self.date_debut <= today <= self.date_fin:
+            self.active = True  # automatique
+        # Sinon, ne rien changer si le responsable a défini manuellement active=False
+
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Période {self.numero} ({self.date_debut} → {self.date_fin})"
+    
+
+class AffectationUe(models.Model):
+    ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name='affectations')
+    professeur = models.ForeignKey(Professeur, on_delete=models.CASCADE, related_name='affectations')
+   

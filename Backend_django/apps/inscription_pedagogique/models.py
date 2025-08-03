@@ -1,48 +1,71 @@
 from django.db import models
 from ..utilisateurs.models import Etudiant, RespInscription
+from ..page_professeur.models import UE  
 
-# Create your models here.
 
-class AnneeAcademique(models.Model):
-    libelle = models.CharField(max_length=20)
 
-class AnneeEtude(models.Model):
-    libelle = models.CharField(max_length=50)
-    annee_academique = models.ForeignKey(AnneeAcademique, on_delete=models.CASCADE)
-
-class Filiere(models.Model):
-    nom = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=10)
-
-class Parcours(models.Model):
-    libelle = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=10)
-    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
 
 class Etablissement(models.Model):
     nom = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=10)
+    
+    def __str__(self):
+        return self.nom
 
 class Departement(models.Model):
     nom = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=10)
     etablissement = models.ForeignKey(Etablissement, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.nom
 
+class Filiere(models.Model):
+    nom = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=10)
+    departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name= 'filieres')
+    def __str__(self):
+        return self.nom
+
+
+class Parcours(models.Model):
+    libelle = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=10)
+    filiere = models.ManyToManyField(Filiere, related_name='parcours', blank=True)
+
+    def __str__(self):
+        return self.libelle
+    
+class AnneeAcademique(models.Model):
+    libelle = models.CharField(max_length=9, unique=True)
+
+    def __str__(self):
+        return self.libelle 
+
+class AnneeEtude(models.Model):
+    libelle = models.CharField(max_length=50)
+    parcours = models.ForeignKey(Parcours,on_delete=models.CASCADE, related_name= 'annees_etude')
+    def __str__(self):
+        return self.libelle
+    
+    
+ 
 class Inscription(models.Model):
     numero = models.CharField(max_length=50)
-    date = models.DateField()
-    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
-    parcours = models.ForeignKey(Parcours, on_delete=models.CASCADE)
-    annee_etude = models.ForeignKey(AnneeEtude, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True) 
+    etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name = 'inscriptions')
+    parcours = models.ForeignKey(Parcours, on_delete=models.CASCADE, related_name = 'inscriptions')
+    annee_etude = models.ForeignKey(AnneeEtude, on_delete=models.CASCADE, related_name = 'inscriptions')
+    ues = models.ManyToManyField(UE, related_name='inscriptions')
+    filiere = models.ForeignKey(Filiere,on_delete = models.CASCADE,  related_name = 'inscriptions')
+    anneeAcademique = models.ForeignKey(AnneeAcademique, on_delete = models.CASCADE, related_name = 'inscriptions') 
+    
 
+
+    
 class PeriodeInscription(models.Model):
     numero = models.CharField(max_length=50)
     date_debut = models.DateField()
     date_fin = models.DateField()
-    parcours = models.ForeignKey(Parcours, on_delete=models.CASCADE)
-    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
-    annee_etude = models.ForeignKey(AnneeEtude, on_delete=models.CASCADE)
-    annee_univ = models.ForeignKey(AnneeAcademique, on_delete=models.CASCADE)
     active = models.BooleanField(default=False)
-    responsable = models.ForeignKey(RespInscription, on_delete=models.SET_NULL, null=True)
+    responsable = models.ForeignKey(RespInscription, on_delete=models.SET_NULL, null=True, related_name = 'periodes_inscription')
 

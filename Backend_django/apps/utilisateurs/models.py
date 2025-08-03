@@ -1,44 +1,90 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.password_validation  import validate_password
 
-# Create your models here.
+from apps.utilisateurs.managers import UtilisateurManager
 
-class Utilisateur(models.Model):
+class Utilisateur(AbstractUser):
+    objects = UtilisateurManager()
+    ROLES = [
+        ('etudiant', 'Etudiant'),
+        ('professeur', 'Professeur'),
+        ('admin', 'Administrateur'),
+        ('resp_notes', 'Responsable des notes'),
+        ('resp_inscription', 'Responsable des inscriptions'),
+        ('secretaire', 'Secrétaire'),
+    ]
+    role = models.CharField(max_length=30, choices=ROLES) 
     email = models.EmailField(unique=True)
-    pseudo = models.CharField(max_length=50)
-    password = models.CharField(max_length=128)
-    nom = models.CharField(max_length=100)
-    prenoms = models.CharField(max_length=100)
-    telephone = models.CharField(max_length=20)
+    telephone = models.CharField(max_length=20, blank=True, null=True)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['role','email','telephone']
+    def __str__(self):
+        return f"{self.username} ({self.role})"
 
-class Professeur(Utilisateur):
-    titre = models.CharField(max_length=50)
-    bio = models.TextField(blank=True)
-    photo = models.TextField(blank=True)
-    code_secret = models.CharField(max_length=50)
+    @property
+    def is_etudiant(self):
+        return hasattr(self, 'etudiant')
 
-class Etudiant(Utilisateur):
+    @property
+    def is_professeur(self):
+        return hasattr(self, 'professeur')
+
+    @property
+    def is_secretaire(self):
+        return hasattr(self, 'secretaire')
+
+    @property
+    def is_resp_notes(self):
+        return hasattr(self, 'resp_notes')
+
+    @property
+    def is_resp_inscription(self):
+        return hasattr(self, 'resp_inscription')
+
+    @property
+    def is_admin_personnalise(self):
+        return hasattr(self, 'admin')
+
+
+# -----------------------------
+# Profils utilisateurs
+# -----------------------------
+
+class Etudiant(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="etudiant")
     num_carte = models.CharField(max_length=20)
-    photo = models.TextField(blank=True)
+    autre_prenom = models.CharField(max_length=50, null =True)
+    photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()
     lieu_naiss = models.CharField(max_length=100)
     adresse = models.TextField(blank=True)
     quartier = models.CharField(max_length=100)
+    is_validated = models.BooleanField(default=False)
+    evaluations = models.ManyToManyField('page_professeur.Evaluation', through='page_professeur.Note', blank=True)
 
-class Administrateur(Utilisateur):
-    pass
+class Professeur(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="professeur")
+    titre = models.CharField(max_length=50)
+    bio = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='photos_profils/', null=True,blank=True)
+    ues = models.ManyToManyField('page_professeur.UE', through='page_professeur.AffectationUe', blank=True)
+   
+class Administrateur(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="admin")
 
-class RespInscription(Utilisateur):
-    pass
+class RespInscription(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="resp_inscription")
 
-class ResponsableSaisieNote(Utilisateur):
-    pass
+class ResponsableSaisieNote(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="resp_notes")
 
-class Secretaire(Utilisateur):
-    pass
+class Secretaire(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="secretaire")
 
 class Connexion(models.Model):
     utilisateur = models.ForeignKey(Utilisateur, on_delete=models.CASCADE, related_name='connexions')
-    date_connexion = models.DateTimeField()
+    date_connexion = models.DateTimeField(auto_now_add=True)
     ip = models.GenericIPAddressField()
     statut = models.CharField(max_length=50)
     navigateur = models.CharField(max_length=200)
