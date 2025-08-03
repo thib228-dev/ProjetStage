@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FaFacebook, FaInstagram, FaTwitter, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTwitter, FaPhone, FaEnvelope, FaMapMarkerAlt, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -35,14 +35,11 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-semibold mb-3">Suivez-nous</h3>
           <div className="flex gap-4 text-xl">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400">
+            <a href="https://www.facebook.com/p/Ecole-Polytechnique-de-Lom%C3%A9-UL-100087985756069/" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:scale-110 transition h-30 ">
               <FaFacebook />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-400">
-              <FaInstagram />
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-300">
-              <FaTwitter />
+            <a href="https://www.linkedin.com/company/%C3%A9cole-polytechnique-de-lom%C3%A9-ul/?trk=similar-pages" target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:scale-110 transition h-30 ">
+              <FaLinkedin />
             </a>
           </div>
         </div>

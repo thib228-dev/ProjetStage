@@ -9,7 +9,6 @@ const links = [
   { href: "/administration/dashboard/enseignants", label: "Gestion enseignants", icon: <FaChalkboardTeacher /> },
   { href: "/administration/dashboard/ues", label: "Gestion UEs", icon: <FaBook /> },
   { href: "/administration/dashboard/notes", label: "Gestion notes", icon: <FaClipboardList /> },
-  { href: "/administration/dashboard/projets", label: "Gestion projets", icon: <FaProjectDiagram /> },
   { href: "/administration/dashboard/articles", label: "Gestion articles", icon: <FaFileAlt /> },
   { href: "/administration/dashboard/statistiques", label: "Statistiques", icon: <FaChartBar /> },
 ];
