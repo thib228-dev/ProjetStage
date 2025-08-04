@@ -8,19 +8,19 @@ import Link from "next/link";
 const slides = [
   {
     image: "/images/epl.jpg",
-    title: "Bienvenue à l'EPL ! École au service de l'excellence",
+    title: "Bienvenue à l'EPL ! \n École d'ingénieurs au service de l'excellence",
     description: "",
     link: "/en-savoir-plus",
   },
   {
     image: "/images/etudiants.jpg",
-    title: "Autre slide title",
+    title: "L'avenir de l'ingénierie Togolaise commence ici",
     description: "",
     link: "/en-savoir-plus",
   },
   {
     image: "/images/epl-ancy.jpg",
-    title: "Encore un autre titre",
+    title: "L'EPL, un tremplin vers l'avenir",
     description: "",
     link: "/en-savoir-plus",
   },
@@ -51,14 +51,14 @@ export default function HeroSlider() {
             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           }`}
         >
-          <Image
-  src={slide.image}
-  alt={slide.title}
-  fill
-  style={{ objectFit: "cover" }}
-  className="rounded-none"
-  priority={index === 0}
-/>
+                      <Image
+                    src={slide.image}
+              alt={slide.title}
+              fill
+              style={{ objectFit: "cover" }}
+              className="rounded-none"
+              priority={index === 0}
+            />
 
           {/* Couche bleu foncé en overlay */}
           <div className="absolute inset-0 bg-black/60"></div>

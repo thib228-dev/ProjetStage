@@ -41,7 +41,7 @@ export default function NotesASaisirProf() {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
             <ClipboardList className="text-orange-600 h-8 w-8" />
-            Exercice
+            Saisie des notes
           </h1>
           <div className="text-sm font-medium text-gray-600 bg-gray-100 px-4 py-2 rounded-lg">
             2023-2024 | Semestre 1
