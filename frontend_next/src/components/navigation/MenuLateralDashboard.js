@@ -37,7 +37,7 @@ const links = [
 export default function MenuLateralDashboard() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0 rounded-r-3xl border-r border-blue-100">
+    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-blue-700">
       <div className="flex-1 flex flex-col overflow-y-auto py-10 px-6">
         <div className="mb-8 flex items-center gap-2 justify-center">
           <span className="font-extrabold text-blue-800 text-2xl tracking-tight drop-shadow">EPL</span>
@@ -64,7 +64,7 @@ export default function MenuLateralDashboard() {
           })}
         </nav>
         <div className="mt-12 pt-8">
-          <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2 rounded-xl shadow-lg transition-all">
+          <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-900 to-blue-900 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-2 rounded-xl shadow-lg transition-all">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" /></svg>
             Se déconnecter
           </button>
