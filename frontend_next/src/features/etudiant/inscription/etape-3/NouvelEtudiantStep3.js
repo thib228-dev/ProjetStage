@@ -10,7 +10,7 @@ export default function NouvelEtudiantStep3({ onSubmit }) {
   const [annee, setAnnee] = useState("");
 
   const filieresParcours = {
-    LF: ["IA & Big Data", "Réseaux", "Génie Civil", "Génie Electrique", "Génie Mécanique"],
+    LF: ["IA & Big Data",  "Génie Civil", "Génie Electrique", "Génie Mécanique"],
     LP: ["Génie Logiciel", "Réseaux", "Génie Civil", "Génie Electrique", "Génie Mécanique"],
   };
 
@@ -29,7 +29,7 @@ export default function NouvelEtudiantStep3({ onSubmit }) {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-150 via-yellow-50 to-blue-200 font-sans flex flex-col">
+    <div className="bg-gradient-to-b from-white to-blue-200 font-sans flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pt-24">
         <Link
           href="/etudiant/inscription/etape-2"

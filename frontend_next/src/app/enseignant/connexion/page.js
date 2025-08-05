@@ -11,7 +11,7 @@ export default function ConnexionEtudiant() {
   const champs = [
     {
       nom: "identifiant",
-      label: "Matricule ou Email",
+      label: "email",
       placeholder: "email",
       requis: true,
     },
@@ -26,13 +26,13 @@ export default function ConnexionEtudiant() {
 
   function handleFormSubmit(valeurs) {
     console.log("Formulaire validé ", valeurs);
-    router.push("/etudiant/dashboard");
+    router.push("/enseignant/dashboard");
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-12">
       <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-md">
-        <h1 className="text-3xl font-extrabold text-blue-900 mb-6 text-center">Connexion Etudiant</h1>
+        <h1 className="text-3xl font-extrabold text-blue-900 mb-6 text-center">Connexion </h1>
 
         <Formulaire champs={champs} onSubmit={handleFormSubmit} />
 

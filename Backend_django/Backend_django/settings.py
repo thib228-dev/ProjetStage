@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-_*5mj73wo27x)=#ee%%0ls%0zsb87p6!)j)@f%kze^^q07+u2l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]  # Change this to your actual domain or IP address in production
 
 
 # Application definition
@@ -58,7 +59,6 @@ MIDDLEWARE = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",  # frontend React ou Next.js
-    "moz-extension://bf6479cc-3ec9-4e34-bf28-219a837f2d64",  # extension Firefox
 ]
 
 
@@ -98,6 +98,10 @@ DATABASES = {
 }
 
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
@@ -115,6 +119,20 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+#Changement de l'utilisateur par defaut
+# https://docs.djangoproject.com/en/5.2/topics/auth/customizing/#specifying-a-custom-user-model
+AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
+
+
+#Filtrage des resultats
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+   
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
 
 
 # Internationalization

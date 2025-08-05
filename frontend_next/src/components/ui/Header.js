@@ -28,8 +28,8 @@ const menuItems = [
     ],
   },
   {
-    label: "Enseignant",
-    children: [
+    label: "Nos Professeurs",
+   /*  children: [
       { label: "articles", href: "/enseignant/dashboard/articles" },
       { label: "Cours", href: "/enseignant/dashboard/cours" },
       { label: "Encadrements", href: "/enseignant/dashboard/encadrements" },
@@ -38,17 +38,33 @@ const menuItems = [
         label: "informations",
         href: "/enseignant/dashboard/donnees-personnelles",
       },
-    ],
+    ], */
+     href: "/nos-profs" 
   },
   {
     label: "Personnel administratif",
     children: [
-      { label: "Secretaire", href: "/administration/dashboard/enseignants" },
-      { label: "chef service examen", href: "/administration/dashboard/notes" },
-      { label: "responsable inscription", href: "/administration/dashboard/etudiants" },
+      { label: "Enseignant",
+        protected: true,
+         href: "/enseignant/dashboard" },
+      { label: "Secretaire",
+        protected: true,
+        href: "/administration/dashboard/enseignants" },
+      { label: "chef service examen",
+        protected: true,
+        href: "/administration/dashboard/notes" },
+      { label: "responsable inscription", protected: true, href: "/administration/dashboard/etudiants" },
     ],
   },
-  { label: "Service examen", href: "/notes" },
+  {
+    label: "Service examen",
+    children: [
+      { label: "Saisie de notes",
+         href: "/enseignant/dashboard/notes" },
+      { label: "Gestion examen",
+        href: "/administration/dashboard/tableau-de-bord" },
+    ],
+  },
   { label: "Nos programmes", href: "/programmes" },
   { label: "Contactez-nous", href: "/contact" },
 ];
@@ -65,6 +81,10 @@ export default function Header() {
   const handleProtectedRoute = (href) => {
     localStorage.setItem("etudiant_redirect", href);
     router.push("/etudiant/connexion");
+  };
+   const handleProtectedPersonnel = (href) => {
+    localStorage.setItem("personnel_redirect", href);
+    router.push("/enseignant/connexion");
   };
 
   return (
@@ -112,7 +132,7 @@ export default function Header() {
 
                 {/* Dropdown */}
                 {hasChildren && openDropdown === item.label && (
-                  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
+                 /*  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
                     {item.children.map((child) =>
                       child.protected ? (
                         <button
@@ -132,7 +152,40 @@ export default function Header() {
                         </Link>
                       )
                     )}
-                  </div>
+                  </div> */
+                  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
+  {item.children.map((child) => {
+    const specialLabels = ["Enseignant", "Secretaire", "Responsable inscriptions", "Chef service examen"];
+    const isSpecial = specialLabels.includes(child.label);
+
+    if (child.protected) {
+      return (
+        <button
+          key={child.label}
+          onClick={() =>
+            isSpecial
+              ? handleProtectedPersonnel(child.href)
+              : handleProtectedRoute(child.href)
+          }
+          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
+        >
+          {child.label}
+        </button>
+      );
+    }
+
+    return (
+      <Link
+        key={child.href}
+        href={child.href}
+        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
+      >
+        {child.label}
+      </Link>
+    );
+  })}
+</div>
+
                 )}
               </div>
             );

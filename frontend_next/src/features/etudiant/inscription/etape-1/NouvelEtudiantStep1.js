@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function NouvelEtudiantStep1({ onSubmit }) {
   return (
-    <div className=" bg-gradient-to-br from-blue-150 via-yellow-50 to-blue-200 font-sans flex flex-col">
+    <div className=" bg-gradient-to-b from-white to-blue-200 font-sans flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 pt-24">
       {/* retour*/}
         <div className="w-full max-w-lg mb-6 self-start px-2">
