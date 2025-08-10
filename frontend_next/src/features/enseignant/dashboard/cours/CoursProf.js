@@ -49,8 +49,8 @@ const handleSaisirNotes = () => {
   const getSortIcon = (key) => {
     if (sortConfig.key !== key) return <FaSort className="ml-1 text-gray-400" />;
     return sortConfig.direction === 'ascending' 
-      ? <FaSortUp className="ml-1 text-orange-600" /> 
-      : <FaSortDown className="ml-1 text-orange-600" />;
+      ? <FaSortUp className="ml-1 text-blue-600" /> 
+      : <FaSortDown className="ml-1 text-blue-600" />;
   };
 
   const handleRowClick = (course) => {
@@ -61,7 +61,7 @@ const handleSaisirNotes = () => {
     <div className="bg-transparent  backdrop-blur-md   px-8 py-10 w-full  animate-fade-in">
       {/* Titre avec année scolaire */}
       <div className="flex justify-between items-center mb-2">
-        <h1 className="text-2xl font-bold text-orange-900">
+        <h1 className="text-2xl font-bold text-blue-900">
           Cours enseignés
         </h1>
         <div className="text-sm font-medium text-gray-600">
@@ -71,14 +71,14 @@ const handleSaisirNotes = () => {
 
       {/* Filtre */}
       <div className="flex justify-between items-center mb-6 mt-10">
-        <h2 className="flex items-center gap-3 text-lg font-semibold text-orange-900">
-          <FaClipboardList className="text-orange-700" />
+        <h2 className="flex items-center gap-3 text-lg font-semibold text-blue-900">
+          <FaClipboardList className="text-blue-700" />
           <span>Filtrer par</span>
         </h2>
         <select
           value={selectedFiliere}
           onChange={(e) => setSelectedFiliere(e.target.value)}
-          className="px-4 py-2 border border-orange-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
+          className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
           <option value="">Toutes les filières</option>
           {filieresDisponibles.map((filiere, idx) => (
@@ -174,17 +174,6 @@ const handleSaisirNotes = () => {
           disabled={!selectedCourse}
         >
           Informations sur l'UE
-        </button>
-        <button
-        onClick={handleSaisirNotes}
-          className={`${
-            selectedCourse
-              ? 'bg-orange-500 hover:bg-orange-600 text-white'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-          } font-semibold px-6 py-2 rounded-lg shadow transition`}
-          disabled={!selectedCourse}
-        >
-          Saisir les notes
         </button>
       </div>
     </div>
