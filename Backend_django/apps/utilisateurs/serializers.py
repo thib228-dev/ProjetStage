@@ -28,8 +28,11 @@ class UtilisateurSerializer(serializers.ModelSerializer):
     class Meta:
         model = Utilisateur
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'telephone', 'role','password']
-        read_only_fields = ['role']  # Le rôle ne doit pas être modifiable via l'API
         
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = Utilisateur.objects.create_user(**validated_data, password=password)
+        return user
 
 
 # ----- CLASSE DE BASE -----

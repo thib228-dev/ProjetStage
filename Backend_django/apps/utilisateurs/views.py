@@ -26,7 +26,7 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
     serializer_class = UtilisateurSerializer
     permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
 
-    @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get', 'put','post'], permission_classes=[IsAuthenticated])
     def me(self, request):
         """/me/ : Voir ou modifier ses propres infos"""
         utilisateur = request.user

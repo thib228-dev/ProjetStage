@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'apps.authentification',
     'rest_framework',
     'django_extensions',
+    'rest_framework_simplejwt',
+    'corsheaders',  # Pour permettre au front de se connecter
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True  # pour tests
+# En prod : CORS_ALLOWED_ORIGINS = ["http://localhost:3000""]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",  # frontend React ou Next.js
@@ -86,15 +91,17 @@ WSGI_APPLICATION = 'Backend_django.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+   
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-
-        'NAME': config('DB_NAME'),  
+        'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'), 
+        'PORT': config('DB_PORT'),
     }
+
+
 }
 
 

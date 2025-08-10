@@ -5,7 +5,6 @@ from django.contrib.auth.password_validation  import validate_password
 from apps.utilisateurs.managers import UtilisateurManager
 
 class Utilisateur(AbstractUser):
-    objects = UtilisateurManager()
     ROLES = [
         ('etudiant', 'Etudiant'),
         ('professeur', 'Professeur'),
@@ -19,6 +18,10 @@ class Utilisateur(AbstractUser):
     telephone = models.CharField(max_length=20, blank=True, null=True)
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['role','email','telephone']
+
+    # ✅ Lien vers le manager
+    objects = UtilisateurManager()
+    
     def __str__(self):
         return f"{self.username} ({self.role})"
 
