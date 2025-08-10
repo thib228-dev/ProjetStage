@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import Formulaire from "@/components/ui/Formulaire.js";
 import Link from "next/link";
+import { authAPI } from '@/services/authService';
 
 export default function ConnexionEtudiant() {
   const router = useRouter();
@@ -24,10 +25,27 @@ export default function ConnexionEtudiant() {
     },
   ];
 
-  function handleFormSubmit(valeurs) {
-    console.log("Formulaire validé ", valeurs);
-    router.push("/enseignant/dashboard");
+  
+  async function handleFormSubmit(valeurs) {
+    try {
+      const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
+
+      // Sauvegarde du token dans localStorage
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+
+      // Redirection après connexion
+      router.push("/enseignant/dashboard");
+       alert("Bienvenue ! Connexion réussie.");
+    } catch (error) {
+      console.error("Erreur de connexion", error);
+      alert("Identifiants incorrects");
+    }
   }
+
+
+  
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-12">
@@ -38,7 +56,6 @@ export default function ConnexionEtudiant() {
 
         <div className="mt-6 text-center flex flex-col gap-2">
           <Link href="/" className="text-blue-700 hover:underline">Retour à l'accueil</Link>
-          <Link href="/etudiant/inscription" className="text-blue-700 hover:underline">Nouveau ? Inscrivez-vous</Link>
         </div>
       </div>
     </div>
