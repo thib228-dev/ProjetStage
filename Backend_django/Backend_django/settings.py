@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
     'rest_framework_simplejwt',
+    'apps.notes_api',
+    'django_filters',
     'corsheaders',  # Pour permettre au front de se connecter
 ]
 
@@ -94,11 +96,11 @@ DATABASES = {
    
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+        'NAME': config('namedb'),
+        'USER': config('user'),
+        'PASSWORD': config('dbpassword'),
+        'HOST': config('dbhost'),
+        'PORT': config('dbport'),
     }
 
 
