@@ -1,3 +1,6 @@
+// Supprimez les états et fonctions liés au dropdown de connexion
+// Remplacez le bouton Connexion par un Link vers /login
+
 "use client";
 
 import Link from "next/link";
@@ -10,62 +13,13 @@ const menuItems = [
     label: "Étudiant",
     children: [
       { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
-      {
-        label: "Données personnelles",
-        protected: true,
-        href: "/etudiant/dashboard/donnees-personnelles",
-      },
-      {
-        label: "Notes",
-        protected: true,
-        href: "/etudiant/dashboard/notes",
-      },
-      {
-        label: "Statistiques",
-        protected: true,
-        href: "/etudiant/dashboard/statistiques",
-      },
+      {label: "Données personnelles",protected: true,href: "/etudiant/dashboard/donnees-personnelles"},
+      {label: "Notes",protected: true,href: "/etudiant/dashboard/notes"},
+      {label: "Statistiques",protected: true,href: "/etudiant/dashboard/statistiques"},
     ],
   },
   {
-    label: "Nos Professeurs",
-   /*  children: [
-      { label: "articles", href: "/enseignant/dashboard/articles" },
-      { label: "Cours", href: "/enseignant/dashboard/cours" },
-      { label: "Encadrements", href: "/enseignant/dashboard/encadrements" },
-      { label: "projets", href: "/enseignant/dashboard/projets" },
-      {
-        label: "informations",
-        href: "/enseignant/dashboard/donnees-personnelles",
-      },
-    ], */
-     href: "/nos-profs" 
-  },
-  {
-    label: "Personnel administratif",
-    children: [
-      { label: "Enseignant",
-        protected: true,
-         href: "/enseignant/dashboard" },
-      { label: "Secretaire",
-        protected: true,
-        href: "/administration/dashboard/enseignants" },
-      { label: "chef service examen",
-        protected: true,
-        href: "/administration/dashboard/notes" },
-      { label: "responsable inscription", protected: true, href: "/administration/dashboard/etudiants" },
-      { label: "Administrateur",
-         href: "/administration/dashboard" },
-    ],
-  },
-  {
-    label: "Service examen",
-    children: [
-      { label: "Saisie de notes",
-         href: "/enseignant/dashboard/notes" },
-      { label: "Gestion examen",
-        href: "/administration/dashboard/tableau-de-bord" },
-    ],
+    label: "Nos Professeurs",href: "/nos-profs" 
   },
   { label: "Nos programmes", href: "/programmes" },
   { label: "Contactez-nous", href: "/contact" },
@@ -82,11 +36,12 @@ export default function Header() {
 
   const handleProtectedRoute = (href) => {
     localStorage.setItem("etudiant_redirect", href);
-    router.push("/etudiant/connexion");
+    router.push("/login");
   };
-   const handleProtectedPersonnel = (href) => {
+  
+  const handleProtectedPersonnel = (href) => {
     localStorage.setItem("personnel_redirect", href);
-    router.push("/enseignant/connexion");
+    router.push("/login");
   };
 
   return (
@@ -96,7 +51,7 @@ export default function Header() {
           <img src="/images/logo-epl.png" className="h-10 w-auto" />
         </Link>
 
-        <nav className="hidden sm:flex gap-6 font-semibold relative">
+        <nav className="hidden sm:flex gap-6 font-semibold relative items-center">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const hasChildren = !!item.children;
@@ -132,19 +87,29 @@ export default function Header() {
                   </Link>
                 )}
 
-                {/* Dropdown */}
                 {hasChildren && openDropdown === item.label && (
-                 /*  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
-                    {item.children.map((child) =>
-                      child.protected ? (
-                        <button
-                          key={child.label}
-                          onClick={() => handleProtectedRoute(child.href)}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
-                        >
-                          {child.label}
-                        </button>
-                      ) : (
+                  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
+                    {item.children.map((child) => {
+                      const specialLabels = ["Enseignant", "Secretaire", "Responsable inscriptions", "Chef service examen"];
+                      const isSpecial = specialLabels.includes(child.label);
+                  
+                      if (child.protected) {
+                        return (
+                          <button
+                            key={child.label}
+                            onClick={() =>
+                              isSpecial
+                                ? handleProtectedPersonnel(child.href)
+                                : handleProtectedRoute(child.href)
+                            }
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
+                          >
+                            {child.label}
+                          </button>
+                        );
+                      }
+
+                      return (
                         <Link
                           key={child.href}
                           href={child.href}
@@ -152,46 +117,21 @@ export default function Header() {
                         >
                           {child.label}
                         </Link>
-                      )
-                    )}
-                  </div> */
-                  <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
-  {item.children.map((child) => {
-    const specialLabels = ["Enseignant", "Secretaire", "Responsable inscriptions", "Chef service examen"];
-    const isSpecial = specialLabels.includes(child.label);
-
-    if (child.protected) {
-      return (
-        <button
-          key={child.label}
-          onClick={() =>
-            isSpecial
-              ? handleProtectedPersonnel(child.href)
-              : handleProtectedRoute(child.href)
-          }
-          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
-        >
-          {child.label}
-        </button>
-      );
-    }
-
-    return (
-      <Link
-        key={child.href}
-        href={child.href}
-        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-800 transition"
-      >
-        {child.label}
-      </Link>
-    );
-  })}
-</div>
-
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             );
           })}
+
+          {/* Bouton Connexion  */}
+          <Link
+            href="/login"
+            className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-700 transition flex items-center gap-1"
+          >
+            Connexion
+          </Link>
         </nav>
       </div>
     </header>
