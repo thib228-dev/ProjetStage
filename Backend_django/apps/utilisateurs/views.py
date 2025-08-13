@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
 
 from apps.utilisateurs.models import (
     Professeur, Etudiant,
@@ -24,9 +24,9 @@ from apps.utilisateurs.serializers import (
 class UtilisateurViewSet(viewsets.ModelViewSet):
     queryset = Utilisateur.objects.all()
     serializer_class = UtilisateurSerializer
-    permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
-
-    @action(detail=False, methods=['get', 'put','post'], permission_classes=[IsAuthenticated])
+   # permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
+    permission_classes = [AllowAny]
+    @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
         """/me/ : Voir ou modifier ses propres infos"""
         utilisateur = request.user
@@ -65,7 +65,8 @@ class EtudiantViewSet(viewsets.ModelViewSet):
 class ProfesseurViewSet(viewsets.ModelViewSet):
     queryset = Professeur.objects.all()
     serializer_class = ProfesseurSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    #permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user

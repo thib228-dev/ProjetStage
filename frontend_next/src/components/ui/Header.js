@@ -54,6 +54,8 @@ const menuItems = [
         protected: true,
         href: "/administration/dashboard/notes" },
       { label: "responsable inscription", protected: true, href: "/administration/dashboard/etudiants" },
+      { label: "Administrateur",
+         href: "/administration/dashboard" },
     ],
   },
   {

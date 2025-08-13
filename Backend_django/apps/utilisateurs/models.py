@@ -61,8 +61,6 @@ class Etudiant(models.Model):
     photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()
     lieu_naiss = models.CharField(max_length=100)
-    adresse = models.TextField(blank=True)
-    quartier = models.CharField(max_length=100)
     is_validated = models.BooleanField(default=False)
     evaluations = models.ManyToManyField('page_professeur.Evaluation', through='page_professeur.Note', blank=True)
 
