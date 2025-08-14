@@ -2,6 +2,39 @@ from django.shortcuts import render
 
 # Create your views here.
 
+
+from rest_framework.response import Response
+from rest_framework import status, views
+
+from apps.authentification import permissions
+from .serializers import RegisterSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
+from .services.auth_service import AuthService
+from rest_framework.views import APIView
+from rest_framework import permissions
+
+
+class RegisterView(views.APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            return Response({"message": "Utilisateur créé avec succès", "id": instance.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        data = AuthService.login(username, password)
+        if not data:
+            return Response({"detail": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(data, status=status.HTTP_200_OK)
+
+
+
+
 """ 
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -43,7 +76,7 @@ class LoginView(APIView):
         
 
 # apps/authentification/views.py
-from rest_framework.views import APIView
+""" from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .services.auth_service import AuthService
@@ -70,7 +103,6 @@ class RegisterView(APIView):
                 "role": request.data.get("role")
             }
 
-            # On retire du payload les champs communs pour laisser profil_data gérer le reste
             profil_data = request.data.copy()
             for key in ["username", "email", "password", "role"]:
                 profil_data.pop(key, None)
@@ -80,4 +112,5 @@ class RegisterView(APIView):
             return Response({"message": "Utilisateur et profil créés avec succès"}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST) """
+            

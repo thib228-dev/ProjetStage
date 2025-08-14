@@ -17,7 +17,7 @@ class Utilisateur(AbstractUser):
     email = models.EmailField(unique=True)
     telephone = models.CharField(max_length=20, blank=True, null=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['role','email','telephone']
+    REQUIRED_FIELDS = ['role','email']
 
     # ✅ Lien vers le manager
     objects = UtilisateurManager()
@@ -61,8 +61,6 @@ class Etudiant(models.Model):
     photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()
     lieu_naiss = models.CharField(max_length=100)
-    adresse = models.TextField(blank=True)
-    quartier = models.CharField(max_length=100)
     is_validated = models.BooleanField(default=False)
     evaluations = models.ManyToManyField('page_professeur.Evaluation', through='page_professeur.Note', blank=True)
 

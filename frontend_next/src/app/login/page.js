@@ -12,8 +12,8 @@ export default function Connexion() {
   const champs = [
     {
       nom: "identifiant",
-      label: "email",
-      placeholder: "email",
+      label: "Identifiant",
+      placeholder: "username",
       requis: true,
     },
     {
@@ -35,7 +35,7 @@ export default function Connexion() {
       localStorage.setItem("refresh_token", data.refresh);
 
       // Redirection après connexion
-      router.push("/enseignant/dashboard");
+      router.push("/administration/dashboard");
          //alert("Bienvenue ! Connexion réussie.");
       } catch (error) {
         console.error("Erreur de connexion", error);
