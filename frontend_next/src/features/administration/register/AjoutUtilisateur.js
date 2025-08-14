@@ -10,19 +10,27 @@ export default function RegisterForm() {
     utilisateur: {
       username: "",
       email: "",
-      nom: "",
-      prenom: "",
-      autre_prenom: "",
-      password: ""
+      last_name: "",
+      first_name: "",
+      password: "",
+      role: "",
     },
-    matricule: "",
+    num_carte: "",
+    autre_prenom: "",
     date_naissance: "",
     lieu_naissance: "",
     titre: "",
     
   });
 
-  const handleRoleChange = (e) => setRole(e.target.value);
+  //const handleRoleChange = (e) => setRole(e.target.value);
+  const handleRoleChange = (e) => {
+    setRole(e.target.value);
+    setFormData((prev) => ({
+      ...prev,
+      utilisateur: { ...prev.utilisateur, role: e.target.value }
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,7 +93,7 @@ export default function RegisterForm() {
         >
           <option value="">-- Choisir un rôle --</option>
           <option value="etudiant">Étudiant</option>
-          <option value="professeur">Professeur</option>
+          <option value="professeur">professeur</option>
           <option value="secretaire">Secrétaire</option>
           <option value="resp_inscription">Responsable Inscription</option>
           <option value="resp_notes">Responsable Saisie Note</option>
@@ -115,18 +123,18 @@ export default function RegisterForm() {
         />
         <input
           type="text"
-          name="utilisateur.nom"
+          name="utilisateur.last_name"
           placeholder="Nom"
-          value={formData.utilisateur.nom}
+          value={formData.utilisateur.last_name}
           onChange={handleChange}
           className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
           required
         />
         <input
           type="text"
-          name="utilisateur.prenom"
+          name="utilisateur.first_name"
           placeholder="Prénom"
-          value={formData.utilisateur.prenom}
+          value={formData.utilisateur.first_name}
           onChange={handleChange}
           className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
           required
@@ -148,16 +156,16 @@ export default function RegisterForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
          <input
             type="text"
-            name="autres_prenoms"
+            name="autre_prenom"
             placeholder="autres prénoms"
-            value={formData.num_carte}
+            value={formData.autre_prenom}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             
           />
           <input
             type="text"
-            name="matricule"
+            name="num_carte"
             placeholder="Matricule"
             value={formData.num_carte}
             onChange={handleChange}
@@ -166,16 +174,16 @@ export default function RegisterForm() {
           />
           <input
             type="date"
-            name="date_naissance"
-            value={formData.date_naissance}
+            name="date_naiss"
+            value={formData.date_naiss}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             required
           />
           <input
             type="text"
-            name="lieu_naissance"
-            value={formData.lieu_naissance}
+            name="lieu_naiss"
+            value={formData.lieu_naiss}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             required

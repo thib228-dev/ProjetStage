@@ -98,7 +98,8 @@ class SecretaireSerializer(BaseProfilSerializer):
     class Meta:
         model = Secretaire
         role = 'secretaire'
-        fields = ['id', 'utilisateur']
+        fields = '__all__'
+
 
 
 # -------- RESPONSABLE INSCRIPTION --------
@@ -108,7 +109,7 @@ class RespInscriptionSerializer(BaseProfilSerializer):
     class Meta:
         model = RespInscription
         role = 'resp_inscription'
-        fields = ['id', 'utilisateur']
+        fields = '__all__'
 
 
 # -------- RESPONSABLE SAISIE NOTE --------
@@ -118,7 +119,7 @@ class ResponsableSaisieNoteSerializer(BaseProfilSerializer):
     class Meta:
         model = ResponsableSaisieNote
         role = 'resp_notes'
-        fields = ['id', 'utilisateur']
+        fields = '__all__'
 
 
 # -------- ADMIN --------
@@ -128,7 +129,7 @@ class AdministrateurSerializer(BaseProfilSerializer):
     class Meta:
         model = Administrateur
         role = 'admin'
-        fields = ['id', 'utilisateur']
+        fields = '__all__'
 
 
 # -------- CONNEXION --------

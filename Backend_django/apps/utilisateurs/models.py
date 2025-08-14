@@ -17,7 +17,7 @@ class Utilisateur(AbstractUser):
     email = models.EmailField(unique=True)
     telephone = models.CharField(max_length=20, blank=True, null=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['role','email','telephone']
+    REQUIRED_FIELDS = ['role','email']
 
     # ✅ Lien vers le manager
     objects = UtilisateurManager()

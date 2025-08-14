@@ -24,8 +24,8 @@ from apps.utilisateurs.serializers import (
 class UtilisateurViewSet(viewsets.ModelViewSet):
     queryset = Utilisateur.objects.all()
     serializer_class = UtilisateurSerializer
-   # permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
+   
     @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
         """/me/ : Voir ou modifier ses propres infos"""
@@ -65,9 +65,8 @@ class EtudiantViewSet(viewsets.ModelViewSet):
 class ProfesseurViewSet(viewsets.ModelViewSet):
     queryset = Professeur.objects.all()
     serializer_class = ProfesseurSerializer
-    #permission_classes = [IsAdminOrReadOnly]
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAdminOrReadOnly]
+   
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.is_professeur:

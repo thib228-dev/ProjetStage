@@ -40,7 +40,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
 
  """
  
-from rest_framework import serializers
+""" from rest_framework import serializers
 from apps.utilisateurs.serializers import (
     EtudiantSerializer,
     ProfesseurSerializer,
@@ -76,3 +76,51 @@ class RegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         serializer_class = validated_data['serializer_class']
         return serializer_class().create(validated_data['validated_data'])
+ """
+
+
+
+
+from rest_framework import serializers
+from apps.utilisateurs.serializers import (
+    EtudiantSerializer,
+    ProfesseurSerializer,
+    SecretaireSerializer,
+    RespInscriptionSerializer,
+    ResponsableSaisieNoteSerializer,
+    AdministrateurSerializer
+)
+
+# Association rôle → serializer correspondant
+ROLE_SERIALIZER_MAP = {
+    'etudiant': EtudiantSerializer,
+    'professeur': ProfesseurSerializer,
+    'secretaire': SecretaireSerializer,
+    'resp_inscription': RespInscriptionSerializer,
+    'resp_notes': ResponsableSaisieNoteSerializer,
+    'admin': AdministrateurSerializer
+}
+
+class RegisterSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=list(ROLE_SERIALIZER_MAP.keys()))
+    data = serializers.DictField()
+
+    def validate(self, attrs):
+        role = attrs.get('role')
+        serializer_class = ROLE_SERIALIZER_MAP[role]
+
+        # On valide les données fournies pour le rôle choisi
+        nested_serializer = serializer_class(data=attrs['data'])
+        nested_serializer.is_valid(raise_exception=True)
+
+        # On stocke les infos utiles pour create()
+        attrs['validated_data'] = nested_serializer.validated_data
+        attrs['serializer_class'] = serializer_class
+        return attrs
+
+    def create(self, validated_data):
+        serializer_class = validated_data['serializer_class']
+        nested_data = validated_data['validated_data']
+        # On délègue la création à la logique du serializer spécifique
+        return serializer_class().create(nested_data)
+    
