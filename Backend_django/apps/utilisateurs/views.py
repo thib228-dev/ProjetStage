@@ -19,12 +19,13 @@ from apps.utilisateurs.serializers import (
     AdministrateurSerializer,
     ConnexionSerializer
 )
+from apps.page_professeur.serializers import UESerializer
 
 # ----- UTILISATEUR DE BASE -----
 class UtilisateurViewSet(viewsets.ModelViewSet):
     queryset = Utilisateur.objects.all()
     serializer_class = UtilisateurSerializer
-    permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
+    #permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
    
     @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -42,7 +43,7 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
 class EtudiantViewSet(viewsets.ModelViewSet):
     queryset = Etudiant.objects.all()
     serializer_class = EtudiantSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    #permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
@@ -81,6 +82,23 @@ class ProfesseurViewSet(viewsets.ModelViewSet):
             serializer.save()
         elif request.method == 'PUT':
             return Response(serializer.errors, status=400)
+        return Response(serializer.data)
+    
+    
+    """  @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def ues(self, request, pk=None):
+        professeur = self.get_object()
+        affectations = professeur.affectations.all()
+        ues = [aff.ue for aff in affectations]
+        serializer = UESerializer(ues, many=True)
+        return Response(serializer.data) """
+    
+    @action(detail=False, methods=['get'])
+    def mes_ues(self, request):
+        professeur = request.user.professeur 
+        affectations = professeur.affectations.all()
+        ues = [aff.ue for aff in affectations]
+        serializer = UESerializer(ues, many=True)
         return Response(serializer.data)
 
 

@@ -3,12 +3,16 @@ from django.shortcuts import render
 # Create your views here.
 
 from rest_framework import viewsets
-from apps.inscription_pedagogique.models import AnneeAcademique, AnneeEtude, Filiere, Parcours, Etablissement, Departement, Inscription, PeriodeInscription
-from apps.inscription_pedagogique.serializers import AnneeAcademiqueSerializer, AnneeEtudeSerializer, FiliereSerializer,  ParcoursSerializer, EtablissementSerializer, DepartementSerializer, InscriptionSerializer, PeriodeInscriptionSerializer
+from apps.inscription_pedagogique.models import AnneeAcademique, AnneeEtude, Filiere, Parcours, Etablissement, Departement, Inscription, PeriodeInscription, Semestre 
+from apps.inscription_pedagogique.serializers import AnneeAcademiqueSerializer, AnneeEtudeSerializer, FiliereSerializer,  ParcoursSerializer, EtablissementSerializer, DepartementSerializer, InscriptionSerializer, PeriodeInscriptionSerializer, SemestreSerializer
 
 class AnneeAcademiqueViewSet(viewsets.ModelViewSet):
     queryset = AnneeAcademique.objects.all().order_by('libelle')
     serializer_class = AnneeAcademiqueSerializer
+
+class SemestreViewSet(viewsets.ModelViewSet):
+    queryset= Semestre.objects.all()
+    serializer_class = SemestreSerializer
 
 class AnneeEtudeViewSet(viewsets.ModelViewSet):
     queryset = AnneeEtude.objects.all()

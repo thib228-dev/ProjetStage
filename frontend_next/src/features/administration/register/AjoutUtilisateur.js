@@ -17,8 +17,8 @@ export default function RegisterForm() {
     },
     num_carte: "",
     autre_prenom: "",
-    date_naissance: "",
-    lieu_naissance: "",
+    date_naiss: "",
+    lieu_naiss: "",
     titre: "",
     
   });
@@ -175,6 +175,7 @@ export default function RegisterForm() {
           <input
             type="date"
             name="date_naiss"
+            placeholder="Date de naissance"
             value={formData.date_naiss}
             onChange={handleChange}
             className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"

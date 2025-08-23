@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import AnneeAcademique, AnneeEtude, Filiere,  Parcours, Etablissement, Departement, Inscription, PeriodeInscription
+from .models import AnneeAcademique, AnneeEtude, Filiere,  Parcours, Etablissement, Departement, Inscription, PeriodeInscription, Semestre
 from apps.page_professeur.models import UE
 from apps.utilisateurs.models import Etudiant, RespInscription
 
@@ -11,8 +11,14 @@ class AnneeAcademiqueSerializer(serializers.ModelSerializer):
         model = AnneeAcademique
         fields = '__all__'
 
+class SemestreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Semestre
+        fields = '__all__'
+
 class AnneeEtudeSerializer(serializers.ModelSerializer):
     inscriptions = serializers.PrimaryKeyRelatedField(queryset=Inscription.objects.all(),many=True)
+    semestres = serializers.PrimaryKeyRelatedField(queryset=Semestre.objects.all(), many=True, required=True)
     class Meta:
         model = AnneeEtude
         fields = '__all__'

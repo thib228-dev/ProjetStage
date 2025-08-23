@@ -1,24 +1,39 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
+import ProfesseurService from "@/services/profService";
 import { FaClipboardList, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
-const courses = [
+/* const courses = [
   { code: "INF 120", libelle: "Base de Données", credits: 4, parcours: "Licence", filiere: "Génie Logiciel" },
   { code: "INF 130", libelle: "Structure de données", credits: 4, parcours: "Licence", filiere: "Génie Logiciel" },
   { code: "INF 150", libelle: "Programmation Mobile", credits: 4, parcours: "Licence", filiere: "Réseaux" },
   { code: "INF 160", libelle: "Programmation Web", credits: 4, parcours: "Licence", filiere: "Génie Logiciel" },
   { code: "INF 170", libelle: "Programmation distribuée", credits: 4, parcours: "Licence", filiere: "Réseaux" },
 ];
-
+ */
 export default function CoursProf() {
 const router = useRouter();
+
+const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    // récupère les UEs du prof connecté
+    ProfesseurService.getMesUes()
+      .then((data) => setCourses(data))
+      .catch((err) => console.error(err));
+  }, []);
+
 const handleSaisirNotes = () => {
     router.push('/enseignant/dashboard/notes');
   };
+
+
   const [selectedFiliere, setSelectedFiliere] = useState("");
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [selectedUeId, setSelectedUeId] = useState(null);
+
 
   const filieresDisponibles = [...new Set(courses.map((c) => c.filiere))];
 
@@ -55,7 +70,19 @@ const handleSaisirNotes = () => {
 
   const handleRowClick = (course) => {
     setSelectedCourse(course.code === selectedCourse?.code ? null : course);
+    const SelectedUeId= course.id;
+    console.log("SelectedUeId:", SelectedUeId);
+    setSelectedUeId(SelectedUeId);
+    router.push(`/enseignant/dashboard/cours/${SelectedUeId}/etudiants-inscrits`);
+
   };
+
+ /*  const handleDoubleClick = (course) => {
+    setSelectedUeId(course.id === selectedUeId ? null : course.id);
+   // router.push(`/enseignant/dashboard/cours/${selectedUeId}/listeEtudiantsUe`);
+    <ListeEtudiantsUE ueId={selectedUeId} />
+  }; */
+
 
   return (
     <div className="bg-transparent  backdrop-blur-md   px-8 py-10 w-full  animate-fade-in">
@@ -140,7 +167,8 @@ const handleSaisirNotes = () => {
                 className={`hover:bg-gray-50 transition cursor-pointer ${
                   selectedCourse?.code === course.code ? 'bg-orange-50' : ''
                 }`}
-                onClick={() => handleRowClick(course)}
+                onClick={() =>handleRowClick(course)}
+                //onDoubleClick={() =>handleRowClick(course) handleDoubleClick(course)}
               >
                 <td className="px-4 py-3 border-b border-gray-200 font-medium text-gray-900">
                   {course.code}
@@ -149,7 +177,7 @@ const handleSaisirNotes = () => {
                   {course.libelle}
                 </td>
                 <td className="px-4 py-3 border-b border-gray-200 text-center">
-                  {course.credits}
+                  {course.nbre_credit}
                 </td>
                 <td className="px-4 py-3 border-b border-gray-200">
                   {course.parcours}
