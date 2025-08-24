@@ -1,13 +1,12 @@
 from django.shortcuts import render
-
+from rest_framework import generics, status
 # Create your views here.
 
 
 from rest_framework.response import Response
 from rest_framework import status, views
 
-from apps.authentification import permissions
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, StudentRegisterSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 from .services.auth_service import AuthService
@@ -15,8 +14,6 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from apps.utilisateurs.models import Utilisateur
 from django.contrib.auth import authenticate
-
-
 
 
 class RegisterView(views.APIView):
@@ -38,8 +35,24 @@ class LoginView(APIView):
         if not data:
             return Response({"detail": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(data, status=status.HTTP_200_OK)
- 
 
+
+class StudentRegisterView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = StudentRegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        etudiant = serializer.save()
+        return Response(
+            {
+                "message": "Étudiant créé avec succès",
+                "user_id": etudiant.utilisateur.id,
+                "etudiant_id": etudiant.id
+            },
+            status=status.HTTP_201_CREATED
+        )
 
 
 """ 

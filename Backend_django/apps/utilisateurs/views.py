@@ -1,9 +1,8 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser,AllowAny
-
-from apps.utilisateurs.models import (
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from ..utilisateurs.models import (
     Professeur, Etudiant,
     RespInscription, ResponsableSaisieNote, Secretaire
 )
@@ -43,7 +42,7 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
 class EtudiantViewSet(viewsets.ModelViewSet):
     queryset = Etudiant.objects.all()
     serializer_class = EtudiantSerializer
-    #permission_classes = [IsAdminOrReadOnly]
+   # permission_classes = [IsAdminOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
@@ -206,3 +205,4 @@ class ConnexionViewSet(viewsets.ModelViewSet):
         if user.is_staff:
             return Connexion.objects.all()
         return Connexion.objects.filter(utilisateur=user)
+        

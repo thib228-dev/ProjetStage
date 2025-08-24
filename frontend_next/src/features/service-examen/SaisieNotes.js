@@ -143,7 +143,7 @@ export default function SaisieNotes() {
           >
             <option value="Lpro-Gl">Lpro-Gl</option>
             <option value="Lpro-sri">Lpro-sri</option>
-            <option value="Lpro-rt">Lpro-rt</option>
+            <option value="Lpro-Gc">Lpro-rt</option>
           </select>
         </div>
         

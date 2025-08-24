@@ -215,7 +215,7 @@ export default function ProfesseurDetail() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-blue-800 text-white py-8">
+      <footer className="bg-blue-00 text-white py-8">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div>

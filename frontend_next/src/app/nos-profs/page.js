@@ -66,7 +66,7 @@ export default function Professeurs() {
             <Search className="w-5 h-5 text-gray-500 mr-2" />
             <input
               type="text"
-              placeholder="🔍 Rechercher un professeur"
+              placeholder="Rechercher un professeur"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="outline-none bg-transparent flex-grow"
