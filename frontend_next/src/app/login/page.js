@@ -33,10 +33,18 @@ export default function Connexion() {
       // Sauvegarde du token dans localStorage
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
-
+      localStorage.setItem("user_role", data.user.role);
+      console.log("Connexion réussie", data.user);
       // Redirection après connexion
+      if (data.user.role === "professeur") {
+      router.push("/enseignant/dashboard");
+    } else if (data.user.role === "etudiant") {
+      router.push("/etudiant/dashboard");
+    } else if (data.user.role === "admin") {
       router.push("/administration/dashboard");
-         //alert("Bienvenue ! Connexion réussie.");
+    } else {
+      router.push("/programmes"); // fallback
+    }
       } catch (error) {
         console.error("Erreur de connexion", error);
        // alert("Identifiants incorrects");

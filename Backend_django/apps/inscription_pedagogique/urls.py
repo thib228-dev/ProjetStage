@@ -2,7 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from .views.viewset.views import AnneeAcademiqueViewSet, AnneeEtudeViewSet, FiliereViewSet, ParcoursViewSet, EtablissementViewSet, DepartementViewSet, InscriptionViewSet, PeriodeInscriptionViewSet
+from .views.viewset.views import AnneeAcademiqueViewSet, AnneeEtudeViewSet, FiliereViewSet, ParcoursViewSet, EtablissementViewSet, DepartementViewSet, InscriptionViewSet, PeriodeInscriptionViewSet,SemestreViewSet
 from .views.apiviews.inscriptions_filtre_view import FiltrerEtudiantsAPIView, EtudiantsParUEView
 
 router = DefaultRouter()
@@ -14,6 +14,7 @@ router.register(r'etablissement', EtablissementViewSet)
 router.register(r'departement', DepartementViewSet)
 router.register(r'inscription', InscriptionViewSet)
 router.register(r'periode-inscription', PeriodeInscriptionViewSet)
+router.register(r'semestre',SemestreViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

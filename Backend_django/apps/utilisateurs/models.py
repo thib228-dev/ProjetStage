@@ -13,6 +13,11 @@ class Utilisateur(AbstractUser):
         ('resp_inscription', 'Responsable des inscriptions'),
         ('secretaire', 'Secrétaire'),
     ]
+    SEXE = [
+        ('M', 'Masculin'),
+        ('F', 'Féminin'),
+    ]
+    sexe = models.CharField(max_length=1, choices=SEXE)
     role = models.CharField(max_length=30, choices=ROLES) 
     email = models.EmailField(unique=True)
     telephone = models.CharField(max_length=20, blank=True, null=True)
@@ -56,7 +61,7 @@ class Utilisateur(AbstractUser):
 
 class Etudiant(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="etudiant")
-    num_carte = models.CharField(max_length=20,blank=True,null=True)
+    num_carte = models.CharField(max_length=20,unique=True,blank=True,null=True)
     autre_prenom = models.CharField(max_length=50, null =True,blank=True)
     photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()

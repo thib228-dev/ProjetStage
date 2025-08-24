@@ -8,7 +8,11 @@ from apps.authentification.permissions import IsAdminOrRespNotesOnly, IsProfesse
 from .serializers import UESerializer,AffectationUeSerializer, EvaluationSerializer, NoteSerializer, ProjetSerializer, RechercheSerializer, ArticleSerializer, EncadrementSerializer, PeriodeSaisieSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
-from apps.utilisateurs.models import Professeur
+from apps.utilisateurs.models import Professeur, Etudiant
+from apps.utilisateurs.serializers import EtudiantSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 
 
 
@@ -29,13 +33,32 @@ class UEViewSet(viewsets.ModelViewSet):
             return [IsResponsableNotes()]
         return super().get_permissions()
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['parcours', 'filiere', 'annee_etude']
+    filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre'] 
 
+    @action(detail=True, methods=['get'])
+    def etudiantsInscrits(self, request, pk=None):
+        ue = self.get_object()
+        etudiantsInscrits = Etudiant.objects.filter(inscriptions__ues=ue)
+        serializer = EtudiantSerializer(etudiantsInscrits, many=True)
+        return Response(serializer.data)
+
+    # Récupérer toutes les évaluations liées à une UE donnée
+    @action(detail=True, methods=['get'], url_path='evaluations')
+    def get_evaluations(self, request, pk=None): 
+        try:
+            ue = self.get_object()  # récupère l'UE en fonction de pk
+            evaluations = ue.evaluations.all()  # grâce au related_name="evaluations"
+            serializer = EvaluationSerializer(evaluations, many=True)
+            return Response(serializer.data)
+        except UE.DoesNotExist:
+            return Response({"error": "UE introuvable"}, status=404)
     
+
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
+    
 
 class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all()
@@ -94,9 +117,9 @@ class PeriodeSaisieViewSet(viewsets.ModelViewSet):
 class AffectationUeViewSet(viewsets.ModelViewSet):
     queryset = AffectationUe.objects.all()
     serializer_class = AffectationUeSerializer
-    permission_classes = [IsAdminOrRespNotesOnly]
+    #permission_classes = [IsAdminOrRespNotesOnly]
 
-    def get_permissions(self):
+    """  def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
             return [IsResponsableNotes()]
         elif self.action == 'list':
@@ -104,3 +127,4 @@ class AffectationUeViewSet(viewsets.ModelViewSet):
                 return [IsProfesseur()]
             return [IsResponsableNotes()]
         return super().get_permissions()
+    """

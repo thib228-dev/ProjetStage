@@ -1,23 +1,37 @@
 
 from rest_framework import serializers
 from .models import UE, AffectationUe, Evaluation, Note, Projet, Recherche, Article, Encadrement,  PeriodeSaisie
-from ..inscription_pedagogique.models import Inscription
+from ..inscription_pedagogique.models import Inscription, Parcours, Filiere, AnneeEtude, Semestre
 from django.utils import timezone
 
 
 
 class UESerializer(serializers.ModelSerializer):
     evaluations = serializers.PrimaryKeyRelatedField(queryset=Evaluation.objects.all(), many=True, required=False) 
+    parcours = serializers.PrimaryKeyRelatedField(queryset=Parcours.objects.all(), many=True, required=True)
+    filiere = serializers.PrimaryKeyRelatedField(queryset=Filiere.objects.all(), many=True, required=True)
+    annee_etude = serializers.PrimaryKeyRelatedField(queryset=AnneeEtude.objects.all(), many=True, required=True)
+    semestre = serializers.PrimaryKeyRelatedField(queryset=Semestre.objects.all(), required=True)
     class Meta:
         model = UE
-        fields = '__all__'
+        fields = ['id', 'libelle', 'code', 'nbre_credit', 'composite','evaluations', 'parcours', 'filiere', 'annee_etude','semestre']
+        required_fields = ['libelle', 'code', 'nbre_credit', 'composite', 'parcours', 'filiere', 'annee_etude','semestre']
     
 
 class EvaluationSerializer(serializers.ModelSerializer):
+   # écriture → on envoie ue
+    ue = serializers.PrimaryKeyRelatedField(
+        queryset=UE.objects.all(),
+        write_only=True
+    )
+
+    # lecture → on affiche les infos de l’UE
+    ue_obj = UESerializer(read_only=True)
+
     class Meta:
         model = Evaluation
-        fields = '__all__'
-        
+        fields = ["id", "type", "poids", "ue", "ue_obj"]
+        required_fields = ['type', 'poids', 'ue']
     def create(self, validated_data):
         user = self.context['request'].user
         if not hasattr(user, 'professeur'):
@@ -42,21 +56,21 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = '__all__'
+        required_fields = ['etudiant', 'evaluation', 'note']
+        
     def create(self, validated_data):
         user = self.context['request'].user
         if not hasattr(user, 'professeur'):
             raise serializers.ValidationError("Seuls les professeurs peuvent saisir une note.")
 
-        evaluation = validated_data.get('evaluation')
-        if evaluation.professeur != user.professeur:
-            raise serializers.ValidationError("Vous ne pouvez saisir une note que pour vos propres évaluations.")
-
-        validated_data['date_saisie'] = timezone.now()
+        #evaluation = validated_data.get('evaluation')
+        #if evaluation.ue.professeur != user.professeur:
+        #    raise serializers.ValidationError("Vous ne pouvez saisir une note que pour vos propres évaluations.")
         return Note.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        for field in ['note', 'commentaire']:
-            setattr(instance, field, validated_data.get(field, getattr(instance, field)))
+        field = ['note']
+        setattr(instance, field, validated_data.get(field, getattr(instance, field)))
         instance.save()
         return instance
 

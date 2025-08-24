@@ -18,6 +18,7 @@ from apps.utilisateurs.serializers import (
     AdministrateurSerializer,
     ConnexionSerializer
 )
+from apps.page_professeur.serializers import UESerializer
 
 # ----- UTILISATEUR DE BASE -----
 class UtilisateurViewSet(viewsets.ModelViewSet):
@@ -80,6 +81,23 @@ class ProfesseurViewSet(viewsets.ModelViewSet):
             serializer.save()
         elif request.method == 'PUT':
             return Response(serializer.errors, status=400)
+        return Response(serializer.data)
+    
+    
+    """  @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def ues(self, request, pk=None):
+        professeur = self.get_object()
+        affectations = professeur.affectations.all()
+        ues = [aff.ue for aff in affectations]
+        serializer = UESerializer(ues, many=True)
+        return Response(serializer.data) """
+    
+    @action(detail=False, methods=['get'])
+    def mes_ues(self, request):
+        professeur = request.user.professeur 
+        affectations = professeur.affectations.all()
+        ues = [aff.ue for aff in affectations]
+        serializer = UESerializer(ues, many=True)
         return Response(serializer.data)
 
 

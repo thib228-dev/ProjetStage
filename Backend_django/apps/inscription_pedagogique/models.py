@@ -19,21 +19,23 @@ class Departement(models.Model):
     def __str__(self):
         return self.nom
 
+class Parcours(models.Model):
+    libelle = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.libelle
+
 class Filiere(models.Model):
     nom = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=10)
     departement = models.ForeignKey(Departement, on_delete=models.CASCADE, related_name= 'filieres')
+    parcours = models.ManyToManyField(Parcours, related_name='filieres')
     def __str__(self):
         return self.nom
 
 
-class Parcours(models.Model):
-    libelle = models.CharField(max_length=100)
-    abbreviation = models.CharField(max_length=10)
-    filiere = models.ManyToManyField(Filiere, related_name='parcours', blank=True)
 
-    def __str__(self):
-        return self.libelle
     
 class AnneeAcademique(models.Model):
     libelle = models.CharField(max_length=9, unique=True)
@@ -43,11 +45,16 @@ class AnneeAcademique(models.Model):
 
 class AnneeEtude(models.Model):
     libelle = models.CharField(max_length=50)
-    parcours = models.ForeignKey(Parcours,on_delete=models.CASCADE, related_name= 'annees_etude')
+    parcours = models.ManyToManyField(Parcours, related_name='annees_etude')
+    semestre = models.ManyToManyField("Semestre", related_name='annees_etude')
     def __str__(self):
         return self.libelle
     
-    
+class Semestre (models.Model):
+    libelle = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.libelle   
  
 class Inscription(models.Model):
     numero = models.CharField(max_length=50)
