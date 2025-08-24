@@ -24,8 +24,7 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Utilisateur
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'telephone', 'role', 'password']
-        read_only_fields = ['role']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'sexe', 'telephone', 'role', 'password']
 
     def create(self, validated_data):
         return Utilisateur.objects.create_user(**validated_data)

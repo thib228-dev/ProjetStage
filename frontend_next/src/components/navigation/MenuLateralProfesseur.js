@@ -5,7 +5,7 @@ import { FaUser, FaBook, FaClipboardList, FaProjectDiagram, FaFileAlt, FaUsers, 
 
 const links = [
   { href: "/enseignant/dashboard/donnees-personnelles", label: "Données personnelles", icon: <FaUser /> },
-  { href: "/enseignant/dashboard/cours", label: "Mes cours", icon: <FaChalkboardTeacher /> },
+  { href: "/enseignant/dashboard/cours/mes-ues", label: "Mes cours", icon: <FaChalkboardTeacher /> },
   { href: "/enseignant/dashboard/projets", label: "Projets encadrés", icon: <FaProjectDiagram /> },
   { href: "/enseignant/dashboard/articles", label: "Articles publiés", icon: <FaFileAlt /> },
   { href: "/enseignant/dashboard/encadrements", label: "Encadrements", icon: <FaUsers /> },

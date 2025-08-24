@@ -8,14 +8,22 @@ from django.utils import timezone
 
 class UE(models.Model):
     libelle = models.CharField(max_length=100)
-    code = models.CharField(max_length=50)
+    code = models.CharField(max_length=50 , unique=True)
     nbre_credit = models.IntegerField()
     composite = models.BooleanField(default=False)
-    
+    parcours = models.ManyToManyField("inscription_pedagogique.Parcours", related_name='ues')
+    filiere = models.ManyToManyField("inscription_pedagogique.Filiere", related_name='ues')
+    annee_etude= models.ManyToManyField("inscription_pedagogique.AnneeEtude", related_name='ues')
+    semestre = models.ForeignKey("inscription_pedagogique.Semestre", on_delete=models.CASCADE, related_name='ues')
 
 class Evaluation(models.Model):
+    TYPE = [
+        ('Devoir', 'Devoir'),
+        ('Examen', 'Examen'),
+        ('Projet', 'Projet'),
+    ]
     ue = models.ForeignKey(UE,on_delete=models.CASCADE, related_name='evaluations')
-    type = models.CharField(max_length=50)
+    type = models.CharField(max_length=50, choices=TYPE)
     poids = models.FloatField()
 
 class Note(models.Model):

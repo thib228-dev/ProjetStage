@@ -1,6 +1,5 @@
 // frontend/services/authService.js
-import api from "./api"; // Assurez-vous que le chemin est correct
-
+import api from "./api"; 
 const TokenStorage = {
   getAccess: () => localStorage.getItem("access"),
   getRefresh: () => localStorage.getItem("refresh"),
@@ -89,10 +88,10 @@ export const authAPI = {
    * attend { access, refresh } en retour
    */
   login: async (username, password) => {
-    const res = await api.post("token/", { username, password });
-    const { access, refresh } = res.data;
+    const res = await api.post("auth/login/", { username, password });
+    const { access, refresh, user } = res.data;
     TokenStorage.setTokens({ access, refresh });
-    return res.data;
+    return { access, refresh, user };
   },
 
   /**
