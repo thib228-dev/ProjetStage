@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.password_validation  import validate_password
 
-from apps.utilisateurs.managers import UtilisateurManager
+from ..utilisateurs.managers import UtilisateurManager
 
 class Utilisateur(AbstractUser):
     ROLES = [
@@ -17,9 +17,9 @@ class Utilisateur(AbstractUser):
     email = models.EmailField(unique=True)
     telephone = models.CharField(max_length=20, blank=True, null=True)
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['role','email','telephone']
+    REQUIRED_FIELDS = ['role','email']
 
-    # ✅ Lien vers le manager
+    # Lien vers le manager
     objects = UtilisateurManager()
     
     def __str__(self):
@@ -56,13 +56,11 @@ class Utilisateur(AbstractUser):
 
 class Etudiant(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="etudiant")
-    num_carte = models.CharField(max_length=20)
-    autre_prenom = models.CharField(max_length=50, null =True)
+    num_carte = models.CharField(max_length=20,blank=True,null=True)
+    autre_prenom = models.CharField(max_length=50, null =True,blank=True)
     photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()
     lieu_naiss = models.CharField(max_length=100)
-    adresse = models.TextField(blank=True)
-    quartier = models.CharField(max_length=100)
     is_validated = models.BooleanField(default=False)
     evaluations = models.ManyToManyField('page_professeur.Evaluation', through='page_professeur.Note', blank=True)
 

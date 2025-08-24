@@ -140,7 +140,7 @@ export const authAPI = {
    * récupère /utilisateurs/me/ (ou l'endpoint profil que tu as)
    */
   getProfile: async () => {
-    const res = await api.get("utilisateurs/me/");
+    const res = await api.get("/utilisateurs/etudiants/me/");
     return res.data;
   },
 
