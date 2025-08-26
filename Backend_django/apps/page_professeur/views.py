@@ -53,6 +53,45 @@ class UEViewSet(viewsets.ModelViewSet):
         except UE.DoesNotExist:
             return Response({"error": "UE introuvable"}, status=404)
     
+    @action(detail=True, methods=["get"])
+    def notes(self, request, pk=None):
+        """
+        Récupère toutes les évaluations d’une UE, les étudiants inscrits,
+        et les notes correspondantes.
+        """
+        ue = self.get_object()
+
+        # toutes les évaluations liées à cette UE (ex: devoir, examen, projet…)
+        evaluations = Evaluation.objects.filter(ue=ue)
+
+        # tous les étudiants inscrits à cette UE
+        etudiants = Etudiant.objects.filter(inscriptions__ues=ue).distinct()
+
+        # construire la réponse JSON
+        data = {
+            "evaluations": [
+                {"id": ev.id, "type": ev.type, "poids": ev.poids}
+                for ev in evaluations
+            ],
+            "etudiants": []
+        }
+
+        for etu in etudiants:
+            notes_dict = {}
+            for ev in evaluations:
+                note_obj = Note.objects.filter(etudiant=etu, evaluation=ev).first()
+                notes_dict[str(ev.id)] = note_obj.note if note_obj else None
+
+            data["etudiants"].append({
+                "id": etu.id,
+                "nom": etu.utilisateur.last_name,
+                "prenom": etu.utilisateur.first_name,
+                "num_carte": etu.num_carte,
+                "sexe": etu.utilisateur.sexe,
+                "notes": notes_dict,
+            })
+
+        return Response(data)
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):

@@ -24,7 +24,7 @@ class Utilisateur(AbstractUser):
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['role','email']
 
-    # ✅ Lien vers le manager
+    # Lien vers le manager
     objects = UtilisateurManager()
     
     def __str__(self):
@@ -61,7 +61,7 @@ class Utilisateur(AbstractUser):
 
 class Etudiant(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="etudiant")
-    num_carte = models.CharField(max_length=20,unique=True)
+    num_carte = models.CharField(max_length=20,unique=True, null=True, blank=True)
     autre_prenom = models.CharField(max_length=50, null =True)
     photo = models.ImageField(upload_to='photos_etudiants/', null=True,blank=True)
     date_naiss = models.DateField()
