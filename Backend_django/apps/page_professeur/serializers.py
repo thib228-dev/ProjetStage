@@ -26,11 +26,11 @@ class EvaluationSerializer(serializers.ModelSerializer):
     )
 
     # lecture → on affiche les infos de l’UE
-    ue_obj = UESerializer(read_only=True)
+    #ue_obj = UESerializer(read_only=True)
 
     class Meta:
         model = Evaluation
-        fields = ["id", "type", "poids", "ue", "ue_obj"]
+        fields = ["id", "type", "poids", "ue"]
         required_fields = ['type', 'poids', 'ue']
     def create(self, validated_data):
         user = self.context['request'].user
@@ -38,14 +38,14 @@ class EvaluationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Seuls les professeurs peuvent créer une évaluation.")
 
         ue = validated_data.get('ue')
-        if ue.professeur != user.professeur:
+        """ if ue.professeur != user.professeur:
             raise serializers.ValidationError("Vous ne pouvez créer une évaluation que pour vos propres UE.")
-
-        validated_data['professeur'] = user.professeur
+ """
+       # validated_data['professeur'] = user.professeur
         return Evaluation.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        for field in ['titre', 'date', 'ponderation', 'ue']:
+        for field in ['type', 'poids']:
             setattr(instance, field, validated_data.get(field, getattr(instance, field)))
         instance.save()
         return instance
@@ -57,23 +57,32 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = '__all__'
         required_fields = ['etudiant', 'evaluation', 'note']
-        
+
     def create(self, validated_data):
         user = self.context['request'].user
         if not hasattr(user, 'professeur'):
             raise serializers.ValidationError("Seuls les professeurs peuvent saisir une note.")
 
-        #evaluation = validated_data.get('evaluation')
-        #if evaluation.ue.professeur != user.professeur:
-        #    raise serializers.ValidationError("Vous ne pouvez saisir une note que pour vos propres évaluations.")
+        etudiant = validated_data.get("etudiant")
+        evaluation = validated_data.get("evaluation")
+
+        # Vérifier si une note existe déjà pour cet étudiant & cette évaluation
+        existing_note = Note.objects.filter(etudiant=etudiant, evaluation=evaluation).first()
+        if existing_note:
+            # Mettre à jour la note existante
+            existing_note.note = validated_data.get("note", existing_note.note)
+            existing_note.save()
+            return existing_note
+
+        # Sinon, on crée une nouvelle note
         return Note.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        field = ['note']
-        setattr(instance, field, validated_data.get(field, getattr(instance, field)))
+        # Ici on met juste à jour les champs modifiés
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
         instance.save()
         return instance
-
 
 class ProjetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -92,6 +101,7 @@ class ProjetSerializer(serializers.ModelSerializer):
             setattr(instance, field, validated_data.get(field, getattr(instance, field)))
         instance.save()
         return instance
+    
 
 class RechercheSerializer(serializers.ModelSerializer):
     class Meta:

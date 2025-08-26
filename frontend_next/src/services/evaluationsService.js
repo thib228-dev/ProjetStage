@@ -10,6 +10,25 @@ const EvaluationService = {
     console.log("evaluations:", response.data);
     return response.data;
   },
+
+ async createEvaluation(type, poids, ueId) {
+    return await api.post(`/notes/evaluations/`, {
+      ue: ueId,
+      type,
+      poids,
+    });
+  },
+
+  // Mettre à jour une évaluation existante
+  async updateEvaluation(evaluationId, data) {
+    return await api.patch(`/notes/evaluations/${evaluationId}/`, data);
+    // data peut être {type: "Devoir"} ou {poids: 20}, ou les deux
+  },
+
+  // Supprimer une évaluation (optionnel)
+  async deleteEvaluation(evaluationId) {
+    return await api.delete(`/notes/evaluations/${evaluationId}/`);
+  }
 };
 
 export default EvaluationService;
