@@ -10,5 +10,15 @@ const ProfesseurService = {
       throw error;
     }
   },
+
+  getAllProfesseurs: async () => {
+    try {
+      const response = await api.get(`utilisateurs/professeurs/`);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération des professeurs", error);
+      throw error;
+    }
+  }
 }
 export default ProfesseurService;
