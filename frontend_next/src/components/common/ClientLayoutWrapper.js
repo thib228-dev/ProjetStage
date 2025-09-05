@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
   const showHeader = !(
-    pathname.startsWith("/etudiant") ||
-    pathname.startsWith("/enseignant") ||
-    pathname.startsWith("/administration")
+    pathname.startsWith("/etudiant")
+    /* pathname.startsWith("/enseignant") ||
+    pathname.startsWith("/administration") */
   );
+ // const showHeader = true;
   return (
     <>
       {showHeader && <Header />}
@@ -16,3 +17,5 @@ export default function ClientLayoutWrapper({ children }) {
     </>
   );
 } 
+
+
