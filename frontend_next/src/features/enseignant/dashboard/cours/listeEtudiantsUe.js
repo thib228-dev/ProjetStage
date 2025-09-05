@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FileDown, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.default ? pdfFonts.default.vfs : pdfFonts.vfs;
 import NoteService from "@/services/noteService";
 import EtudiantService from "@/services/etudiantService";
-import { useRouter } from "next/navigation";
 
 function ListeEtudiantsUE({ ueId }) {
   const [etudiants, setEtudiants] = useState([]);
@@ -11,7 +17,6 @@ function ListeEtudiantsUE({ ueId }) {
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
   const router = useRouter();
-  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,60 +37,88 @@ function ListeEtudiantsUE({ ueId }) {
     fetchData();
   }, [ueId]);
 
-  // Calcul de la moyenne pondérée
+  // ✅ Calcul moyenne pondérée
   const calculerMoyenne = (etu) => {
     let somme = 0;
     let totalPoids = 0;
-
     for (const evalObj of evaluations) {
       const note = etu.notes[evalObj.id];
-      if (note === undefined || note === null) {
-        return "-"; // ⚠️ Si une note manque → pas de moyenne
-      }
+      if (note === undefined || note === null) return "-";
       somme += note * evalObj.poids;
       totalPoids += evalObj.poids;
     }
-
     return totalPoids > 0 ? (somme / totalPoids).toFixed(2) : "-";
   };
 
-  const handleEdit = (index, etu) => {
-    setEditIndex(index);
-    setEditedData({ note: etu.notes[selectedEvaluation.id] ?? "" });
+  // ✅ Export Excel
+  const exportExcel = () => {
+    const data = etudiants.map((etu) => {
+      const row = {
+        "N° Carte": etu.num_carte,
+        Nom: etu.nom,
+        Prénom: etu.prenom,
+        Sexe: etu.sexe,
+      };
+      evaluations.forEach((ev) => {
+        row[`${ev.type} (${ev.poids}%)`] = etu.notes[ev.id] ?? "-";
+      });
+      row["Moyenne"] = calculerMoyenne(etu);
+      return row;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Notes");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([excelBuffer], { type: "application/octet-stream" }), "notes.xlsx");
   };
 
-  const handleSave = async (index, etu) => {
-    if (!selectedEvaluation) return;
-    const noteValue = parseFloat(editedData.note);
-    if (isNaN(noteValue) || noteValue < 0 || noteValue > 20) {
-      alert("Veuillez entrer une note valide entre 0 et 20.");
-      
-    }
+  // ✅ Export PDF
+  const exportPDF = () => {
+    const body = [
+      ["N° Carte", "Nom", "Prénom", "Sexe", ...evaluations.map((ev) => `${ev.type} (${ev.poids}%)`), "Moyenne"]
+    ];
 
-    try {
-      await NoteService.createNote(etu.id, selectedEvaluation.id, noteValue);
+    etudiants.forEach((etu) => {
+      const row = [
+        etu.num_carte,
+        etu.nom,
+        etu.prenom,
+        etu.sexe,
+        ...evaluations.map((ev) => etu.notes[ev.id] ?? "-"),
+        calculerMoyenne(etu)
+      ];
+      body.push(row);
+    });
 
-      // Mettre à jour localement
-      setEtudiants((prev) =>
-        prev.map((e, i) =>
-          i === index
-            ? { ...e, notes: { ...e.notes, [selectedEvaluation.id]: noteValue } }
-            : e
-        )
-      );
+    const docDefinition = {
+      content: [
+        { text: "Liste des étudiants et notes", style: "header" },
+        { table: { headerRows: 1, body }, layout: "lightHorizontalLines" },
+      ],
+      styles: {
+        header: { fontSize: 16, bold: true, margin: [0, 0, 0, 10] },
+      },
+    };
 
-      setEditIndex(null);
-    } catch (err) {
-      console.error("Erreur lors de la sauvegarde :", err);
-    }
+    pdfMake.createPdf(docDefinition).download("notes.pdf");
   };
 
   if (loading) return <p>Chargement...</p>;
 
   return (
-    <div>
-      <h2>Étudiants inscrits</h2>
-
+    <div className="bg-transparent px-8 py-10 w-full h-full animate-fade-in">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="font-bold text-2xl">Étudiants inscrits</h2>
+        <div className="flex gap-3">
+          <button onClick={exportPDF} className="p-2 bg-red-500 text-white rounded-lg flex items-center gap-2">
+            <FileDown size={18} /> PDF
+          </button>
+          <button onClick={exportExcel} className="p-2 bg-green-600 text-white rounded-lg flex items-center gap-2">
+            <FileSpreadsheet size={18} /> Excel
+          </button>
+        </div>
+      </div>
       {/* Sélecteur d'évaluation */}
       <div className="mb-4">
         <label className="mr-2 font-bold">Type d'évaluation :</label>
@@ -109,8 +142,10 @@ function ListeEtudiantsUE({ ueId }) {
             </option>
           ))}
         </select>
+        <div> <button onClick={() => router.push(`/enseignant/dashboard/cours/mes-ues/${ueId}/evaluations`)
+         }> Modifier Evaluation </button> </div>
       </div>
-
+      
       {/* Tableau */}
       <table className="w-full border-collapse border">
         <thead>

@@ -31,8 +31,8 @@ export default function Connexion() {
       const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
 
       // Sauvegarde du token dans localStorage
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
+      //localStorage.setItem("access_token", data.access);
+      //localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("user_role", data.user.role);
       console.log("Connexion réussie", data.user);
       // Redirection après connexion
@@ -42,6 +42,9 @@ export default function Connexion() {
       router.push("/etudiant/dashboard");
     } else if (data.user.role === "admin") {
       router.push("/administration/dashboard");
+    } 
+    else if (data.user.role === "resp_notes") {
+      router.push("/gestion-notes/dashboard");
     } else {
       router.push("/programmes"); // fallback
     }

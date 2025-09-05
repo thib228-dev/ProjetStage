@@ -43,18 +43,20 @@ class AnneeAcademique(models.Model):
     def __str__(self):
         return self.libelle 
 
-class AnneeEtude(models.Model):
-    libelle = models.CharField(max_length=50)
-    parcours = models.ManyToManyField(Parcours, related_name='annees_etude')
-    semestre = models.ManyToManyField("Semestre", related_name='annees_etude')
-    def __str__(self):
-        return self.libelle
+
     
 class Semestre (models.Model):
     libelle = models.CharField(max_length=50)
 
     def __str__(self):
         return self.libelle   
+
+class AnneeEtude(models.Model):
+    libelle = models.CharField(max_length=50)
+    parcours = models.ManyToManyField(Parcours, related_name='annees_etude')
+    semestre = models.ManyToManyField(Semestre, related_name='annees_etude')
+    def __str__(self):
+        return self.libelle
  
 class Inscription(models.Model):
     numero = models.CharField(max_length=50)

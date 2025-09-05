@@ -18,7 +18,7 @@ class SemestreSerializer(serializers.ModelSerializer):
 
 class AnneeEtudeSerializer(serializers.ModelSerializer):
     inscriptions = serializers.PrimaryKeyRelatedField(queryset=Inscription.objects.all(),many=True)
-    semestres = serializers.PrimaryKeyRelatedField(queryset=Semestre.objects.all(), many=True, required=True)
+    semestre = serializers.PrimaryKeyRelatedField(queryset=Semestre.objects.all(), many=True, required=True)
     class Meta:
         model = AnneeEtude
         fields = '__all__'
@@ -32,7 +32,6 @@ class FiliereSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ParcoursSerializer(serializers.ModelSerializer):
-    filiere = serializers.PrimaryKeyRelatedField(queryset=Filiere.objects.all(), many=True)
     inscriptions = serializers.PrimaryKeyRelatedField(queryset=Inscription.objects.all(),many=True)
     class Meta:
         model = Parcours

@@ -1,13 +1,11 @@
-// Supprimez les états et fonctions liés au dropdown de connexion
-// Remplacez le bouton Connexion par un Link vers /login
 
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-const menuItems = [
+/* const menuItems = [
   { label: "Accueil", href: "/" },
   {
     label: "Étudiant",
@@ -23,12 +21,64 @@ const menuItems = [
   },
   { label: "Nos programmes", href: "/programmes" },
   { label: "Contactez-nous", href: "/contact" },
-];
+]; */
+// Menus selon rôles
+  const baseMenu = [
+    { label: "Accueil", href: "/" },
+    { label: "Nos Professeurs", href: "/nos-profs" },
+    {
+      label: "Étudiant",
+      children: [
+        { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
+        { label: "Données personnelles", protected: true, href: "/etudiant/dashboard/donnees-personnelles" },
+        { label: "Notes", protected: true, href: "/etudiant/dashboard/notes" },
+      {label: "Statistiques",protected: true,href: "/etudiant/dashboard/statistiques"},
+      ],
+    },
+    { label: "Nos programmes", href: "/programmes" },
+    { label: "Contactez-nous", href: "/contact" },
+    
+  ];
+
+  const personnelMenu = [
+    { label: "Accueil", href: "/" },
+    { label: "Nos Professeurs", href: "/nos-profs" },
+    { label: "Nos programmes", href: "/programmes" },
+    { label: "Contactez-nous", href: "/contact" },
+    {
+      label: "Personnel",
+      children: [
+        { label: "Gestion Étudiants", href: "/admin/etudiants" },
+        { label: "Gestion Professeurs", href: "/admin/professeurs" },
+      ],
+    },
+    { label: "Service examen", href: "/enseignant/dashboard/cours" },
+  ];
+
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [role, setRole] = useState("");
+
+  useEffect(() => {
+  const storedRole = localStorage.getItem("user_role");
+  if (storedRole) {
+    setRole(storedRole);
+  } 
+  else {
+    setRole("visiteur"); // rôle par défaut
+  }
+}, []);
+
+// Construire menu final selon user.role
+  let menuItems = [...baseMenu];
+
+if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === "responsable inscriptions"|| role === "chef service examen") {
+  menuItems = [...personnelMenu];
+}
+
 
   const handleDropdown = (label) => {
     setOpenDropdown((prev) => (prev === label ? null : label));
