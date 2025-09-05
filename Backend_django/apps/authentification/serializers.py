@@ -132,7 +132,7 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Etudiant
-        fields = ["username", "email", "password", "num_carte", "date_naiss", "lieu_naiss"]
+        fields = ["username", "email", "password", "date_naiss", "lieu_naiss"]
 
     def create(self, validated_data):
         username = validated_data.pop("username")

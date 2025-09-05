@@ -1,5 +1,4 @@
 "use client";
-import Header from "../ui/HeaderConnexion";
 import { usePathname } from "next/navigation";
 
 export default function EtudiantLayoutWrapper({ children }) {

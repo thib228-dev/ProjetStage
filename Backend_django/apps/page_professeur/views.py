@@ -19,7 +19,7 @@ from rest_framework.response import Response
 class UEViewSet(viewsets.ModelViewSet):
     queryset = UE.objects.all()
     serializer_class = UESerializer
-    permission_classes = [IsAdminOrRespNotesOnly]
+    #permission_classes = [IsAdminOrRespNotesOnly]
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
@@ -92,6 +92,29 @@ class UEViewSet(viewsets.ModelViewSet):
             })
 
         return Response(data)
+        
+    @action(detail=False, methods=['get'], url_path='filtrer')
+    def filtrer(self, request):
+        """
+        Récupérer les UEs filtrées par parcours, filière et année d’étude.
+        Exemple d’URL :
+        GET /notes/ues/filtrer/?parcours=1&filiere=2&annee_etude=3
+        """
+        parcours_id = request.query_params.get('parcours')
+        filiere_id = request.query_params.get('filiere')
+        annee_id = request.query_params.get('annee_etude')
+
+        queryset = UE.objects.all()
+
+        if parcours_id:
+            queryset = queryset.filter(parcours__id=parcours_id)
+        if filiere_id:
+            queryset = queryset.filter(filiere__id=filiere_id)
+        if annee_id:
+            queryset = queryset.filter(annee_etude__id=annee_id)
+
+        serializer = UESerializer(queryset.distinct(), many=True)
+        return Response(serializer.data)
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):
