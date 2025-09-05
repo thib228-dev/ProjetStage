@@ -82,6 +82,7 @@ class RegisterSerializer(serializers.Serializer):
 
 
 from rest_framework import serializers
+from apps.utilisateurs.models import Etudiant, Utilisateur
 from apps.utilisateurs.serializers import (
     EtudiantSerializer,
     ProfesseurSerializer,
@@ -124,3 +125,28 @@ class RegisterSerializer(serializers.Serializer):
         # On délègue la création à la logique du serializer spécifique
         return serializer_class().create(nested_data)
     
+class StudentRegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Etudiant
+        fields = ["username", "email", "password", "num_carte", "date_naiss", "lieu_naiss"]
+
+    def create(self, validated_data):
+        username = validated_data.pop("username")
+        email = validated_data.pop("email")
+        password = validated_data.pop("password")
+
+        # Créer l’utilisateur
+        user = Utilisateur.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            role="etudiant"
+        )
+
+        # Créer l’étudiant
+        etudiant = Etudiant.objects.create(utilisateur=user, **validated_data)
+        return etudiant
