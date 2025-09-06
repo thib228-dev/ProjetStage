@@ -23,37 +23,37 @@ import React, { useState, useEffect } from "react";
   { label: "Contactez-nous", href: "/contact" },
 ]; */
 // Menus selon rôles
-  const baseMenu = [
-    { label: "Accueil", href: "/" },
-    { label: "Nos Professeurs", href: "/nos-profs" },
-    {
-      label: "Étudiant",
-      children: [
-        { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
-        { label: "Données personnelles", protected: true, href: "/etudiant/dashboard/donnees-personnelles" },
-        { label: "Notes", protected: true, href: "/etudiant/dashboard/notes" },
-      {label: "Statistiques",protected: true,href: "/etudiant/dashboard/statistiques"},
-      ],
-    },
-    { label: "Nos programmes", href: "/programmes" },
-    { label: "Contactez-nous", href: "/contact" },
-    
-  ];
+const baseMenu = [
+  { label: "Accueil", href: "/" },
+  { label: "Nos Professeurs", href: "/nos-profs" },
+  {
+    label: "Étudiant",
+    children: [
+      { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
+      { label: "Données personnelles", protected: true, href: "/etudiant/dashboard/donnees-personnelles" },
+      { label: "Notes", protected: true, href: "/etudiant/dashboard/notes" },
+      { label: "Statistiques", protected: true, href: "/etudiant/dashboard/statistiques" },
+    ],
+  },
+  { label: "Nos programmes", href: "/programmes" },
+  { label: "Contactez-nous", href: "/contact" },
 
-  const personnelMenu = [
-    { label: "Accueil", href: "/" },
-    { label: "Nos Professeurs", href: "/nos-profs" },
-    { label: "Nos programmes", href: "/programmes" },
-    { label: "Contactez-nous", href: "/contact" },
-    {
-      label: "Personnel",
-      children: [
-        { label: "Gestion Étudiants", href: "/admin/etudiants" },
-        { label: "Gestion Professeurs", href: "/admin/professeurs" },
-      ],
-    },
-    { label: "Service examen", href: "/enseignant/dashboard/cours" },
-  ];
+];
+
+const personnelMenu = [
+  { label: "Accueil", href: "/" },
+  { label: "Nos Professeurs", href: "/nos-profs" },
+  { label: "Nos programmes", href: "/programmes" },
+  { label: "Contactez-nous", href: "/contact" },
+  {
+    label: "Personnel",
+    children: [
+      { label: "Gestion Étudiants", href: "/admin/etudiants" },
+      { label: "Gestion Professeurs", href: "/admin/professeurs" },
+    ],
+  },
+  { label: "Service examen", href: "/enseignant/dashboard/cours" },
+];
 
 
 export default function Header() {
@@ -63,21 +63,21 @@ export default function Header() {
   const [role, setRole] = useState("");
 
   useEffect(() => {
-  const storedRole = localStorage.getItem("user_role");
-  if (storedRole) {
-    setRole(storedRole);
-  } 
-  else {
-    setRole("visiteur"); // rôle par défaut
-  }
-}, []);
+    const storedRole = localStorage.getItem("user_role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
+    else {
+      setRole("visiteur"); // rôle par défaut
+    }
+  }, []);
 
-// Construire menu final selon user.role
+  // Construire menu final selon user.role
   let menuItems = [...baseMenu];
 
-if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === "responsable inscriptions"|| role === "chef service examen") {
-  menuItems = [...personnelMenu];
-}
+  if (role === "admin" || role === "professeur" || role === "secretaire" || role === "responsable inscriptions" || role === "chef service examen") {
+    menuItems = [...personnelMenu];
+  }
 
 
   const handleDropdown = (label) => {
@@ -88,10 +88,14 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
     localStorage.setItem("etudiant_redirect", href);
     router.push("/login");
   };
-  
+
   const handleProtectedPersonnel = (href) => {
     localStorage.setItem("personnel_redirect", href);
     router.push("/login");
+  };
+
+  const isAuthenticated = () => {
+    return localStorage.getItem("access") !== null;
   };
 
   return (
@@ -115,11 +119,10 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
               >
                 {hasChildren ? (
                   <button
-                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${
-                      isActive
-                        ? "text-blue-700 font-bold bg-blue-100/70"
-                        : "text-gray-700 hover:bg-blue-100"
-                    }`}
+                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${isActive
+                      ? "text-blue-700 font-bold bg-blue-100/70"
+                      : "text-gray-700 hover:bg-blue-100"
+                      }`}
                   >
                     {item.label}
                     <span className="text-xs">▼</span>
@@ -127,11 +130,10 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
                 ) : (
                   <Link
                     href={item.href}
-                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${
-                      isActive
-                        ? "text-blue-700 font-bold bg-blue-100/70"
-                        : "text-gray-700 hover:bg-blue-100"
-                    }`}
+                    className={`px-3 py-2 rounded transition flex items-center gap-1 ${isActive
+                      ? "text-blue-700 font-bold bg-blue-100/70"
+                      : "text-gray-700 hover:bg-blue-100"
+                      }`}
                   >
                     {item.label}
                   </Link>
@@ -142,7 +144,7 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
                     {item.children.map((child) => {
                       const specialLabels = ["Enseignant", "Secretaire", "Responsable inscriptions", "Chef service examen"];
                       const isSpecial = specialLabels.includes(child.label);
-                  
+
                       if (child.protected) {
                         return (
                           <button

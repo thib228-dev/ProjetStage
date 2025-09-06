@@ -2,12 +2,13 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import Formulaire from "@/components/ui/Formulaire.js";
 import Link from "next/link";
-import { authAPI } from '@/services/authService';
 
 export default function Connexion() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const champs = [
     {
@@ -25,39 +26,34 @@ export default function Connexion() {
     },
   ];
 
-  
   async function handleFormSubmit(valeurs) {
     try {
-      const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
+      const data = await login(valeurs.identifiant, valeurs.motdepasse);
 
-      // Sauvegarde du token dans localStorage
-      //localStorage.setItem("access_token", data.access);
-      //localStorage.setItem("refresh_token", data.refresh);
-      localStorage.setItem("user_role", data.user.role);
       console.log("Connexion réussie", data.user);
-      // Redirection après connexion
-      if (data.user.role === "professeur") {
-      router.push("/enseignant/dashboard");
-    } else if (data.user.role === "etudiant") {
-      router.push("/etudiant/dashboard");
-    } else if (data.user.role === "admin") {
-      router.push("/administration/dashboard");
-    } 
-    else if (data.user.role === "resp_notes") {
-      router.push("/gestion-notes/dashboard");
-    } else {
-      router.push("/programmes"); // fallback
-    }
-      } catch (error) {
-        console.error("Erreur de connexion", error);
-       // alert("Identifiants incorrects");
-    }
 
+      // Redirection selon le rôle
+      if (data.user.role === "professeur") {
+        router.push("/enseignant/dashboard");
+      } else if (data.user.role === "etudiant") {
+        router.push("/etudiant/dashboard");
+      } else if (data.user.role === "admin") {
+        router.push("/administration/dashboard");
+      } else if (data.user.role === "resp_notes") {
+        router.push("/gestion-notes/dashboard");
+      } else {
+        router.push("/programmes");
+      }
+    } catch (error) {
+      console.error("Erreur de connexion", error);
+      alert("Identifiants incorrects");
+    }
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-12">
       <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl px-8 py-10 w-full max-w-md">
-        <h1 className="text-3xl font-extrabold text-blue-900 mb-6 text-center">Connexion </h1>
+        <h1 className="text-3xl font-extrabold text-blue-900 mb-6 text-center">Connexion</h1>
 
         <Formulaire champs={champs} onSubmit={handleFormSubmit} />
 

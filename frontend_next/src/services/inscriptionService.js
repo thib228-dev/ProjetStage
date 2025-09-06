@@ -3,13 +3,13 @@ import api from "./api";
 const inscriptionService = {
   // Récupérer les UE filtrées
   getUEs: async (params) => {
-    const response = await api.get("/ues/", { params });
+    const response = await api.get("/notes/ues/", { params });
     return response.data;
   },
 
   // Créer une inscription
   createInscription: async (data) => {
-    const response = await api.post("/inscriptions/", data);
+    const response = await api.post("/inscription/inscription/", data);
     return response.data;
   }
 };

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { authAPI } from '@/services/authService';
+import authAPI from '@/services/authService';
 
 export default function NouvelEtudiantStep1({ onNext }) {
   const [formulaire, setFormulaire] = useState({
@@ -41,13 +41,13 @@ export default function NouvelEtudiantStep1({ onNext }) {
 
   const validerFormulaire = () => {
     const nouvellesErreurs = {};
-    
+
     if (!formulaire.email.trim()) {
       nouvellesErreurs.email = "L'email est requis";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formulaire.email)) {
       nouvellesErreurs.email = "Email invalide";
     }
-    
+
     if (!formulaire.username.trim()) nouvellesErreurs.username = "Un nom d'utilisateur est requis";
     if (!formulaire.password) {
       nouvellesErreurs.password = "Un mot de passe est requis";
@@ -74,8 +74,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
         ...formulaire,
       };
       localStorage.setItem("inscription_step1", JSON.stringify(donneesAEtager));
-      
-      onNext?.(); 
+
+      onNext?.();
     } catch (error) {
       console.error("Erreur:", error);
       setErreurs({ formulaire: "Une erreur s'est produite" });
@@ -97,9 +97,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
         <div className="flex items-center justify-center gap-6 mb-10">
           {[1, 2, 3, 4].map((etape) => (
             <div key={etape} className={`flex flex-col items-center ${etape === 1 ? 'text-blue-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${
-                etape === 1 ? 'border-blue-700 bg-blue-100' : 'border-gray-300 bg-white'
-              } font-bold text-lg transition-all`}>
+              <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${etape === 1 ? 'border-blue-700 bg-blue-100' : 'border-gray-300 bg-white'
+                } font-bold text-lg transition-all`}>
                 {etape}
               </div>
               {etape < 4 && <div className="w-12 h-1 bg-gray-300 mt-1 mb-1 rounded" />}
@@ -109,7 +108,7 @@ export default function NouvelEtudiantStep1({ onNext }) {
 
         <form onSubmit={soumettreFormulaire} className="bg-transparent backdrop-blur-md px-8 py-10 w-full max-w-lg flex flex-col gap-6 animate-fade-in border border-gray-300 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold text-center text-blue-800 mb-4">Création du compte</h2>
-          
+
           {/* Champ Email */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">Email*</label>
@@ -118,9 +117,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
               value={formulaire.email}
               onChange={gererChangement}
               type="email"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.email ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.email ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="exemple@email.com"
             />
             {erreurs.email && <p className="text-red-500 text-sm mt-1">{erreurs.email}</p>}
@@ -135,9 +133,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
               onChange={gererChangement}
               autoComplete="off"
               type="text"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.username ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.username ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Choisissez un nom d'utilisateur unique"
             />
             {erreurs.username && <p className="text-red-500 text-sm mt-1">{erreurs.username}</p>}
@@ -151,9 +148,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
               value={formulaire.password}
               onChange={gererChangement}
               type="password"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.password ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.password ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Créez un mot de passe sécurisé"
             />
             {erreurs.password && <p className="text-red-500 text-sm mt-1">{erreurs.password}</p>}
@@ -167,9 +163,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
               value={formulaire.password_confirmation}
               onChange={gererChangement}
               type="password"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.password_confirmation ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.password_confirmation ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Retapez votre mot de passe"
             />
             {erreurs.password_confirmation && <p className="text-red-500 text-sm mt-1">{erreurs.password_confirmation}</p>}
@@ -180,8 +175,8 @@ export default function NouvelEtudiantStep1({ onNext }) {
             <Link href="/" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-lg shadow transition-all text-center">
               Annuler
             </Link>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={chargement}
               className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-8 rounded-lg shadow transition-all disabled:opacity-50"
             >

@@ -1,9 +1,9 @@
-import api from "./api"; 
+import api from "./api";
 
 const ProfesseurService = {
-    getMesUes: async () => {
+  getMesUes: async () => {
     try {
-      const response = await api.get(`utilisateurs/professeurs/mes_ues/`);
+      const response = await api.get(`/utilisateurs/professeurs/mes_ues/`);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de la récupération des UEs du professeur connecté", error);
@@ -13,7 +13,7 @@ const ProfesseurService = {
 
   getAllProfesseurs: async () => {
     try {
-      const response = await api.get(`utilisateurs/professeurs/`);
+      const response = await api.get(`/utilisateurs/professeurs/`);
       return response.data;
     } catch (error) {
       console.error("Erreur lors de la récupération des professeurs", error);

@@ -1,17 +1,17 @@
-import api from "./api"; 
+import api from "./api";
 
 const EvaluationService = {
   getEvaluationsByUE: async (ueId) => {
     console.log("Fetching evaluations for UE ID:", ueId);
-  if (!ueId) {
-    throw new Error("ueId est null ou undefined !");
-  }
-    const response = await api.get(`/notes/ues/${ueId}/evaluations/`);
+    if (!ueId) {
+      throw new Error("ueId est null ou undefined !");
+    }
+    const response = await api.get(`/notes/ues/${ueId}/`);
     console.log("evaluations:", response.data);
     return response.data;
   },
 
- async createEvaluation(type, poids, ueId) {
+  async createEvaluation(type, poids, ueId) {
     return await api.post(`/notes/evaluations/`, {
       ue: ueId,
       type,

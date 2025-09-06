@@ -1,15 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { authAPI } from '@/services/authService';
+import authAPI from '@/services/authService';
 
 export default function NouvelEtudiantStep2({ onNext, onPrev }) {
   const [formulaire, setFormulaire] = useState({
-    nom: "",       
-    prenom: "",    
-    contact: "",   
-    date_naissance: "", 
-    lieu_naiss: "", 
+    nom: "",
+    prenom: "",
+    contact: "",
+    date_naissance: "",
+    lieu_naiss: "",
     autre_prenom: "",
     photo: null,
   });
@@ -44,11 +44,11 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
         const parsed = JSON.parse(donneesSauvegardees);
         setFormulaire(prev => ({
           ...prev,
-          nom: parsed.nom || "",       
-          prenom: parsed.prenom || "",    
-          contact: parsed.contact || "",   
-          date_naissance: parsed.date_naissance || "", 
-          lieu_naiss: parsed.lieu_naiss || "", 
+          nom: parsed.nom || "",
+          prenom: parsed.prenom || "",
+          contact: parsed.contact || "",
+          date_naissance: parsed.date_naissance || "",
+          lieu_naiss: parsed.lieu_naiss || "",
           autre_prenom: parsed.autre_prenom || "",
           photo: null, // Réinitialiser la photo (ne peut pas être stockée)
         }));
@@ -91,7 +91,7 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
     lecteur.onload = () => {
       const resultatBase64 = lecteur.result;
       setApercu(resultatBase64);
-      
+
       // Sauvegarde dans localStorage
       const donneesExistantes = JSON.parse(localStorage.getItem("inscription_step1") || "{}");
       localStorage.setItem("inscription_step1", JSON.stringify({
@@ -107,16 +107,16 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
 
   const validerFormulaire = () => {
     const nouvellesErreurs = {};
-    
+
     if (!formulaire.nom.trim()) nouvellesErreurs.nom = "Le nom est requis";
     if (!formulaire.prenom.trim()) nouvellesErreurs.prenom = "Le prénom est requis";
-    
+
     if (!formulaire.contact.trim()) {
       nouvellesErreurs.contact = "Le contact est requis";
     } else if (formulaire.contact.length < 8) {
       nouvellesErreurs.contact = "Numéro trop court (min 8 caractères)";
     }
-    
+
     if (!formulaire.date_naissance) {
       nouvellesErreurs.date_naissance = "La date de naissance est requise";
     } else if (!validerAge(formulaire.date_naissance)) {
@@ -140,10 +140,10 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
     try {
       // Récupérer les données de l'étape 1
       const donneesEtape1 = JSON.parse(localStorage.getItem("inscription_step1") || "{}");
-      
+
       // Préparer FormData pour l'envoi (inclut la photo)
       const formData = new FormData();
-      
+
       // Données utilisateur (étape 1)
       formData.append('username', donneesEtape1.username);
       formData.append('password', donneesEtape1.password);
@@ -152,7 +152,7 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
       formData.append('first_name', formulaire.prenom);
       formData.append('last_name', formulaire.nom);
       formData.append('telephone', formulaire.contact);
-      
+
       // Données étudiant (étape 2)
       formData.append('date_naiss', formulaire.date_naissance);
       formData.append('lieu_naiss', formulaire.lieu_naiss);
@@ -164,7 +164,7 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
       }
 
       // Envoyer les données
-      const response = await authAPI.apiInstance().post('/auth/register-etudiant/', formData, {
+      const response = await authAPI.apiInstance().post('/auth/register/etudiant/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -180,11 +180,11 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
         etudiant_id: data.etudiant_id
       };
       localStorage.setItem("inscription_step1", JSON.stringify(donneesAEtager));
-      
-      onNext?.(); 
+
+      onNext?.();
     } catch (error) {
       console.error("Erreur API:", error.response?.data || error.message);
-      
+
       if (error.response?.data) {
         const errors = error.response.data;
         // Gestion des erreurs
@@ -214,9 +214,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
         <div className="flex items-center justify-center gap-6 mb-10">
           {[1, 2, 3, 4].map((etape) => (
             <div key={etape} className={`flex flex-col items-center ${etape === 2 ? 'text-blue-700' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${
-                etape === 2 ? 'border-blue-700 bg-blue-100' : 'border-gray-300 bg-white'
-              } font-bold text-lg transition-all`}>
+              <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${etape === 2 ? 'border-blue-700 bg-blue-100' : 'border-gray-300 bg-white'
+                } font-bold text-lg transition-all`}>
                 {etape}
               </div>
               {etape < 4 && <div className="w-12 h-1 bg-gray-300 mt-1 mb-1 rounded" />}
@@ -226,14 +225,14 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
 
         <form onSubmit={soumettreFormulaire} className="bg-transparent backdrop-blur-md px-8 py-10 w-full max-w-lg flex flex-col gap-6 animate-fade-in border border-gray-300 rounded-lg shadow-lg">
           <h2 className="text-2xl font-bold text-center text-blue-800 mb-4">Informations personnelles</h2>
-          
+
           <div className="flex flex-col items-center gap-2">
             <label className="block text-gray-700 font-semibold mb-2">Photo de profil</label>
             <div className="relative w-32 h-32 rounded-full bg-gray-100 border-2 border-gray-300 flex items-center justify-center overflow-hidden mb-2">
               {apercu ? (
-                <img 
-                  src={apercu} 
-                  alt="Aperçu de la photo de profil" 
+                <img
+                  src={apercu}
+                  alt="Aperçu de la photo de profil"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -250,7 +249,7 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
                 className="absolute inset-0 opacity-0 cursor-pointer"
                 onChange={gererChangementPhoto}
               />
-              
+
               <label htmlFor="photoInput" className="absolute bottom-0 bg-white/90 text-black font-medium text-xs px-2 py-1 rounded-full shadow flex items-center gap-1 cursor-pointer hover:bg-white transition-all">
                 {apercu ? "Changer" : "Ajouter"}
               </label>
@@ -267,9 +266,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
               value={formulaire.nom}
               onChange={gererChangement}
               type="text"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.nom ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.nom ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Entrez votre nom"
             />
             {erreurs.nom && <p className="text-red-500 text-sm mt-1">{erreurs.nom}</p>}
@@ -283,9 +281,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
               value={formulaire.prenom}
               onChange={gererChangement}
               type="text"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.prenom ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.prenom ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Entrez votre prénom"
             />
             {erreurs.prenom && <p className="text-red-500 text-sm mt-1">{erreurs.prenom}</p>}
@@ -312,9 +309,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
               value={formulaire.contact}
               onChange={gererChangement}
               type="tel"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.contact ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.contact ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Numéro de téléphone"
             />
             {erreurs.contact && <p className="text-red-500 text-sm mt-1">{erreurs.contact}</p>}
@@ -329,9 +325,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
               onChange={gererChangement}
               type="date"
               max={calculerDateMinimale()}
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.date_naissance ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.date_naissance ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
             />
             {erreurs.date_naissance ? (
               <p className="text-red-500 text-sm mt-1">{erreurs.date_naissance}</p>
@@ -348,9 +343,8 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
               value={formulaire.lieu_naiss}
               onChange={gererChangement}
               type="text"
-              className={`w-full px-4 py-2 rounded-lg border ${
-                erreurs.lieu_naiss ? 'border-red-500' : 'border-gray-300'
-              } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+              className={`w-full px-4 py-2 rounded-lg border ${erreurs.lieu_naiss ? 'border-red-500' : 'border-gray-300'
+                } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
               placeholder="Ex: Abidjan, Côte d'Ivoire"
             />
             {erreurs.lieu_naiss && <p className="text-red-500 text-sm mt-1">{erreurs.lieu_naiss}</p>}
@@ -358,15 +352,15 @@ export default function NouvelEtudiantStep2({ onNext, onPrev }) {
 
           {/* Boutons d'action */}
           <div className="flex justify-between mt-6 gap-4">
-            <button 
+            <button
               type="button"
               onClick={onPrev}
               className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-8 rounded-lg shadow transition-all text-center"
             >
               Précédent
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={chargement}
               className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-8 rounded-lg shadow transition-all disabled:opacity-50"
             >
