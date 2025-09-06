@@ -21,8 +21,23 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
+from django.http import JsonResponse
+
+def api_root(request):
+    return JsonResponse({
+        'message': 'EPL Backend API',
+        'endpoints': {
+            'admin': '/admin/',
+            'auth': '/api/auth/',
+            'users': '/api/utilisateurs/',
+            'inscriptions': '/api/inscription/',
+            'notes': '/api/notes/',
+        }
+    })
 
 urlpatterns = [
+    path('', api_root, name='api_root'),
+    
     # Administration Django
     path('admin/', admin.site.urls),
     
