@@ -1,88 +1,8 @@
-""" 
+# apps/authentification/serializers.py
 
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from apps.utilisateurs.models import Utilisateur, Etudiant
-
-
-
-class LoginSerializer(serializers.Serializer):
-    pseudo = serializers.CharField()
-    password = serializers.CharField()
-
-
-class StudentRegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, validators=[validate_password])
-    pseudo = serializers.CharField(source='username')  # alias pour username
-
-    class Meta:
-        model = Utilisateur
-        fields = ['email', 'nom', 'prenoms', 'pseudo', 'password']
-
-    def create(self, validated_data):
-        username = validated_data['username']  # alias pseudo
-        email = validated_data['email']
-        nom = validated_data['nom']
-        prenoms = validated_data['prenoms']
-        password = validated_data['password']
-
-        user = Utilisateur.objects.create_user(
-            username=username,
-            email=email,
-            nom=nom,
-            prenoms=prenoms,
-            password=password,
-        )
-
-        Etudiant.objects.create(utilisateur=user)
-        return user
-
-
- """
- 
-""" from rest_framework import serializers
-from apps.utilisateurs.serializers import (
-    EtudiantSerializer,
-    ProfesseurSerializer,
-    SecretaireSerializer,
-    RespInscriptionSerializer,
-    ResponsableSaisieNoteSerializer,
-    AdministrateurSerializer
-)
-
-ROLE_SERIALIZER_MAP = {
-    'etudiant': EtudiantSerializer,
-    'professeur': ProfesseurSerializer,
-    'secretaire': SecretaireSerializer,
-    'resp_inscription': RespInscriptionSerializer,
-    'resp_notes': ResponsableSaisieNoteSerializer,
-    'admin': AdministrateurSerializer
-}
-
-class RegisterSerializer(serializers.Serializer):
-    role = serializers.ChoiceField(choices=ROLE_SERIALIZER_MAP.keys())
-    data = serializers.DictField()
-
-    def validate(self, attrs):
-        role = attrs['role']
-        serializer_class = ROLE_SERIALIZER_MAP[role]
-        nested_serializer = serializer_class(data=attrs['data'])
-        if not nested_serializer.is_valid():
-            raise serializers.ValidationError(nested_serializer.errors)
-        attrs['validated_data'] = nested_serializer.validated_data
-        attrs['serializer_class'] = serializer_class
-        return attrs
-
-    def create(self, validated_data):
-        serializer_class = validated_data['serializer_class']
-        return serializer_class().create(validated_data['validated_data'])
- """
-
-
-
-
-from rest_framework import serializers
-from apps.utilisateurs.models import Etudiant, Utilisateur
 from apps.utilisateurs.serializers import (
     EtudiantSerializer,
     ProfesseurSerializer,
@@ -102,7 +22,15 @@ ROLE_SERIALIZER_MAP = {
     'admin': AdministrateurSerializer
 }
 
+
+class LoginSerializer(serializers.Serializer):
+    """Serializer pour la connexion"""
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+
 class RegisterSerializer(serializers.Serializer):
+    """Serializer pour l'inscription générale (tous rôles)"""
     role = serializers.ChoiceField(choices=list(ROLE_SERIALIZER_MAP.keys()))
     data = serializers.DictField()
 
@@ -110,11 +38,11 @@ class RegisterSerializer(serializers.Serializer):
         role = attrs.get('role')
         serializer_class = ROLE_SERIALIZER_MAP[role]
 
-        # On valide les données fournies pour le rôle choisi
+        # Validation des données pour le rôle choisi
         nested_serializer = serializer_class(data=attrs['data'])
         nested_serializer.is_valid(raise_exception=True)
 
-        # On stocke les infos utiles pour create()
+        # Stockage des infos pour create()
         attrs['validated_data'] = nested_serializer.validated_data
         attrs['serializer_class'] = serializer_class
         return attrs
@@ -122,31 +50,68 @@ class RegisterSerializer(serializers.Serializer):
     def create(self, validated_data):
         serializer_class = validated_data['serializer_class']
         nested_data = validated_data['validated_data']
-        # On délègue la création à la logique du serializer spécifique
+        # Délégation à la logique du serializer spécifique
         return serializer_class().create(nested_data)
-    
+
+
 class StudentRegisterSerializer(serializers.ModelSerializer):
+    """Serializer spécifique pour l'inscription des étudiants"""
     username = serializers.CharField()
     email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, validators=[validate_password])
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    sexe = serializers.ChoiceField(choices=Utilisateur.SEXE)
 
     class Meta:
         model = Etudiant
-        fields = ["username", "email", "password", "num_carte", "date_naiss", "lieu_naiss"]
+        fields = [
+            "username", "email", "password", "first_name", "last_name", "sexe",
+            "num_carte", "autre_prenom", "date_naiss", "lieu_naiss"
+        ]
+
+    def validate_username(self, value):
+        if Utilisateur.objects.filter(username=value).exists():
+            raise serializers.ValidationError("Ce nom d'utilisateur existe déjà.")
+        return value
+
+    def validate_email(self, value):
+        if Utilisateur.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Cette adresse email existe déjà.")
+        return value
+
+    def validate_num_carte(self, value):
+        if value and Etudiant.objects.filter(num_carte=value).exists():
+            raise serializers.ValidationError("Ce numéro de carte existe déjà.")
+        return value
 
     def create(self, validated_data):
-        username = validated_data.pop("username")
-        email = validated_data.pop("email")
-        password = validated_data.pop("password")
+        # Extraction des données utilisateur
+        user_data = {
+            'username': validated_data.pop('username'),
+            'email': validated_data.pop('email'),
+            'password': validated_data.pop('password'),
+            'first_name': validated_data.pop('first_name'),
+            'last_name': validated_data.pop('last_name'),
+            'sexe': validated_data.pop('sexe'),
+            'role': 'etudiant'
+        }
 
-        # Créer l’utilisateur
-        user = Utilisateur.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            role="etudiant"
-        )
+        # Création de l'utilisateur
+        user = Utilisateur.objects.create_user(**user_data)
 
-        # Créer l’étudiant
+        # Création de l'étudiant
         etudiant = Etudiant.objects.create(utilisateur=user, **validated_data)
         return etudiant
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Serializer pour le changement de mot de passe"""
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, validators=[validate_password])
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Ancien mot de passe incorrect.")
+        return value
