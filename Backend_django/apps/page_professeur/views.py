@@ -13,28 +13,35 @@ from apps.utilisateurs.serializers import EtudiantSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-
-
-
 class UEViewSet(viewsets.ModelViewSet):
-    queryset = UE.objects.all()
+    queryset = UE.objects.all().order_by('code')
     serializer_class = UESerializer
-    #permission_classes = [IsAdminOrRespNotesOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre']
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy']:
+        if self.action == 'list':
+            return [permissions.AllowAny()]  
+        if self.action == 'retrieve':
+            return [permissions.AllowAny()]
+        
+        if self.action in ['create', 'update', 'destroy', 'partial_update']:
             return [IsResponsableNotes()]
-        elif self.action == 'list':
-            if hasattr(self.request.user, 'professeur'):
-                prof = self.request.user.professeur
-                ues = prof.ues.all().values_list('id', flat=True)
-                self.queryset = UE.objects.filter(id__in=ues)
-                return [IsProfesseur()]
-            return [IsResponsableNotes()]
-        return super().get_permissions()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre'] 
+        
+        # Par défaut : authentification requise
+        return [permissions.IsAuthenticated()]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        # Filtrage optionnel pour les professeurs
+        if hasattr(self.request.user, 'professeur'):
+            return queryset.filter(professeurs=self.request.user.professeur)
+        
+        return queryset
+        
+        
+# Récupération des étudiants inscrits à une UE donnée
     @action(detail=True, methods=['get'])
     def etudiantsInscrits(self, request, pk=None):
         ue = self.get_object()
@@ -44,7 +51,7 @@ class UEViewSet(viewsets.ModelViewSet):
 
     # Récupérer toutes les évaluations liées à une UE donnée
     @action(detail=True, methods=['get'], url_path='evaluations')
-    def get_evaluations(self, request, pk=None): 
+    def get_evaluations(self, request, pk=None):
         try:
             ue = self.get_object()  # récupère l'UE en fonction de pk
             evaluations = ue.evaluations.all()  # grâce au related_name="evaluations"
@@ -52,7 +59,8 @@ class UEViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except UE.DoesNotExist:
             return Response({"error": "UE introuvable"}, status=404)
-    
+        
+    # nouvelle action pour récupérer les notes
     @action(detail=True, methods=["get"])
     def notes(self, request, pk=None):
         """
@@ -121,7 +129,6 @@ class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
     
-
 class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer

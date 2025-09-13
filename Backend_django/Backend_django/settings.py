@@ -133,12 +133,20 @@ AUTH_USER_MODEL = 'utilisateurs.Utilisateur'
 
 
 #Filtrage des resultats
+# Dans votre fichier Backend_django/settings.py
+# Remplacez votre section REST_FRAMEWORK actuelle par ceci :
+
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-   
+    
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Permissions par défaut
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20  # Optionnel : pagination
 }
 
 

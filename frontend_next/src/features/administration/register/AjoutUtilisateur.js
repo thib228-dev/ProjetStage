@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import authAPI from "@/services/authService";
+import { Radio } from "lucide-react";
 
 
 export default function RegisterForm() {
@@ -135,6 +136,15 @@ export default function RegisterForm() {
           name="utilisateur.first_name"
           placeholder="Prénom"
           value={formData.utilisateur.first_name}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+          required
+        />
+        <input
+          type="texte"
+          name="utilisateur.sexe"
+          placeholder="sexe"
+          value={formData.utilisateur.sexe}
           onChange={handleChange}
           className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
           required
