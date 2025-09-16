@@ -20,27 +20,26 @@ class UEViewSet(viewsets.ModelViewSet):
     filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre']
 
     def get_permissions(self):
-      
+       
+     #  Création , modification , suppression , seulement Responsable de notes
         if self.action in ['create', 'update', 'destroy']:
             return [IsResponsableNotes()]
-        elif self.action in ['list','partial_update']:
+            
+    #  Accès spécial pour les professeurs (ils ne voient que leurs UEs)        
+        if self.action in ['list','partial_update']:
             if hasattr(self.request.user, 'professeur'):
                 prof = self.request.user.professeur
                 ues = prof.ues.all().values_list('id', flat=True)
                 self.queryset = UE.objects.filter(id__in=ues)
                 return [IsProfesseur()]
-
-        if self.action == 'list':
-            return [permissions.AllowAny()]  
-        if self.action == 'retrieve':
+                
+        # ste / récupération / filtrage  ouvert à tout le monde
+        if self.action in ['list', 'retrieOIUve', 'filtrer']:
             return [permissions.AllowAny()]
-        
-        if self.action in ['create', 'update', 'destroy', 'partial_update']:
-
-            return [IsResponsableNotes()]
-        
-        # Par défaut : authentification requise
+            
+        #authentification par defaut 
         return [permissions.IsAuthenticated()]
+
 
     def get_queryset(self):
         queryset = super().get_queryset()

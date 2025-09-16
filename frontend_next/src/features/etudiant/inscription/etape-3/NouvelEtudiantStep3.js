@@ -18,22 +18,11 @@ export default function NouvelEtudiantStep3() {
     filieres: [],
     annees: [],
   });
+  const [filtredFilieres, setFiltredFilieres] = useState([]);
+  const [filtredAnnees, setFiltredAnnees] = useState([]);
   const [erreurs, setErreurs] = useState({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  // Configurer l'intercepteur pour inclure le token JWT
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    api.interceptors.request.use((config) => {
-      config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    });
-  }, [router]);
 
   // Charger les options depuis l'API
   useEffect(() => {
@@ -45,6 +34,7 @@ export default function NouvelEtudiantStep3() {
           api.get("/inscription/filiere/"),
           api.get("/inscription/annee-etude/"),
         ]);
+        
         setOptions({
           parcours: parcoursRes.data,
           filieres: filieresRes.data,
@@ -65,6 +55,24 @@ export default function NouvelEtudiantStep3() {
       setFormulaire(JSON.parse(savedData));
     }
   }, [router]);
+
+  // Filtrer les filières et années quand le parcours change
+  useEffect(() => {
+    if (formulaire.parcours_id) {
+      const filieresFiltrees = options.filieres.filter(
+        (filiere) => filiere.parcours && filiere.parcours.includes(parseInt(formulaire.parcours_id))
+      );
+      setFiltredFilieres(filieresFiltrees);
+
+      const anneesFiltrees = options.annees.filter(
+        (annee) => annee.parcours && annee.parcours.includes(parseInt(formulaire.parcours_id))
+      );
+      setFiltredAnnees(anneesFiltrees);
+    } else {
+      setFiltredFilieres([]);
+      setFiltredAnnees([]);
+    }
+  }, [formulaire.parcours_id, options.filieres, options.annees]);
 
   const gererChangement = (e) => {
     const { name, value } = e.target;
@@ -161,24 +169,21 @@ export default function NouvelEtudiantStep3() {
           name="filiere_id"
           value={formulaire.filiere_id}
           onChange={gererChangement}
+          disabled={!formulaire.parcours_id}
           className={`w-full px-4 py-2 rounded-lg border ${
             erreurs.filiere_id ? "border-red-500" : "border-gray-200"
-          } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 ${
+            !formulaire.parcours_id ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <option value="">Sélectionnez une filière</option>
-          {options.filieres
-            .filter(
-              (filiere) =>
-                !formulaire.parcours_id ||
-                filiere.parcours.some(
-                  (p) => p.id === parseInt(formulaire.parcours_id)
-                )
-            )
-            .map((filiere) => (
-              <option key={filiere.id} value={filiere.id}>
-                {filiere.nom}
-              </option>
-            ))}
+          <option value="">
+            {formulaire.parcours_id ? "Sélectionnez une filière" : "Veuillez d'abord sélectionner un parcours"}
+          </option>
+          {filtredFilieres.map((filiere) => (
+            <option key={filiere.id} value={filiere.id}>
+              {filiere.nom}
+            </option>
+          ))}
         </select>
         {erreurs.filiere_id && (
           <p className="text-red-500 text-sm mt-1">{erreurs.filiere_id}</p>
@@ -192,24 +197,21 @@ export default function NouvelEtudiantStep3() {
           name="annee_etude_id"
           value={formulaire.annee_etude_id}
           onChange={gererChangement}
+          disabled={!formulaire.parcours_id}
           className={`w-full px-4 py-2 rounded-lg border ${
             erreurs.annee_etude_id ? "border-red-500" : "border-gray-200"
-          } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70`}
+          } focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 ${
+            !formulaire.parcours_id ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <option value="">Sélectionnez une année</option>
-          {options.annees
-            .filter(
-              (annee) =>
-                !formulaire.parcours_id ||
-                annee.parcours.some(
-                  (p) => p.id === parseInt(formulaire.parcours_id)
-                )
-            )
-            .map((annee) => (
-              <option key={annee.id} value={annee.id}>
-                {annee.libelle}
-              </option>
-            ))}
+          <option value="">
+            {formulaire.parcours_id ? "Sélectionnez une année" : "Veuillez d'abord sélectionner un parcours"}
+          </option>
+          {filtredAnnees.map((annee) => (
+            <option key={annee.id} value={annee.id}>
+              {annee.libelle}
+            </option>
+          ))}
         </select>
         {erreurs.annee_etude_id && (
           <p className="text-red-500 text-sm mt-1">{erreurs.annee_etude_id}</p>

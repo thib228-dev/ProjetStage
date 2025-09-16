@@ -61,18 +61,55 @@ class BaseProfilSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+        
+class UtilisateurInfoSerializer(serializers.ModelSerializer):
+    """Serializer simple pour afficher les infos utilisateur"""
+    class Meta:
+        model = Utilisateur
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'sexe', 'telephone']
+        
+# -------- ETUDIANT --------     
 
-
-# -------- ETUDIANT --------
 class EtudiantSerializer(BaseProfilSerializer):
-    role = serializers.CharField(default='etudiant', read_only=True)
-    inscriptions = serializers.PrimaryKeyRelatedField(queryset=Inscription.objects.all(), many=True, required=False)
-    evaluations = NoteSerializer(source='notes', many=True, read_only=True)
-
+    # Informations utilisateur (read-only pour la plupart)
+    email = serializers.EmailField(source='utilisateur.email')
+    username = serializers.CharField(source='utilisateur.username', read_only=True)
+    first_name = serializers.CharField(source='utilisateur.first_name')
+    last_name = serializers.CharField(source='utilisateur.last_name')
+    telephone = serializers.CharField(source='utilisateur.telephone')
+    sexe = serializers.CharField(source='utilisateur.sexe', read_only=True)
+    
+    # Informations étudiant
+    num_carte = serializers.CharField(read_only=True)  # Non modifiable
+    date_naiss = serializers.DateField(read_only=True)  # Non modifiable
+    lieu_naiss = serializers.CharField(read_only=True)  # Non modifiable
+    autre_prenom = serializers.CharField(required=False)  # Modifiable
+    
+    # Informations d'inscription (read-only)
+    parcours_info = serializers.SerializerMethodField()
+    filiere_info = serializers.SerializerMethodField()
+    annee_etude_info = serializers.SerializerMethodField()
+    
     class Meta:
         model = Etudiant
-        role = 'etudiant'
-        fields = '__all__'
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'telephone', 'sexe', 'num_carte', 'date_naiss', 
+            'lieu_naiss', 'autre_prenom', 'photo', 'is_validated',
+            'parcours_info', 'filiere_info', 'annee_etude_info'
+        ]
+        
+    def get_parcours_info(self, obj):
+        inscription = obj.inscriptions.first()
+        return inscription.parcours.libelle if inscription else None
+        
+    def get_filiere_info(self, obj):
+        inscription = obj.inscriptions.first()
+        return inscription.filiere.nom if inscription else None
+        
+    def get_annee_etude_info(self, obj):
+        inscription = obj.inscriptions.first()
+        return inscription.annee_etude.libelle if inscription else None
 
 
 # -------- PROFESSEUR --------

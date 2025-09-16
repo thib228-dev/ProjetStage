@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { authAPI } from '@/services/authService';
 import { validateField, calculerDateMinimale, validerPhoto } from '@/components/ui/ValidationUtils';
 
 export default function NouvelEtudiantStep2() {
@@ -36,7 +35,7 @@ export default function NouvelEtudiantStep2() {
 
   // Chargement des données sauvegardées
   useEffect(() => {
-    const donneesSauvegardees = localStorage.getItem("inscription_step1");
+    const donneesSauvegardees = localStorage.getItem("inscription_step2");
     if (donneesSauvegardees) {
       const parsed = JSON.parse(donneesSauvegardees);
       setFormulaire(prev => ({
@@ -91,8 +90,8 @@ export default function NouvelEtudiantStep2() {
       setApercu(resultatBase64);
       
       // Sauvegarde dans localStorage
-      const donneesExistantes = JSON.parse(localStorage.getItem("inscription_step1") || "{}");
-      localStorage.setItem("inscription_step1", JSON.stringify({
+      const donneesExistantes = JSON.parse(localStorage.getItem("inscription_step2") || "{}");
+      localStorage.setItem("inscription_step2", JSON.stringify({
         ...donneesExistantes,
         photoNom: fichier.name,
         photoBase64: resultatBase64,
@@ -106,7 +105,7 @@ export default function NouvelEtudiantStep2() {
   const validerFormulaire = () => {
     const nouvellesErreurs = {};
     
-    // Valider tous les champs avec votre système de validation
+    // Valider tous les champs
     Object.keys(champsRequis).forEach(key => {
       if (key !== 'photo') {
         nouvellesErreurs[key] = validateField(key, formulaire[key], champsRequis[key].required);
@@ -134,65 +133,29 @@ export default function NouvelEtudiantStep2() {
       // Récupérer les données de l'étape 1
       const donneesEtape1 = JSON.parse(localStorage.getItem("inscription_step1") || "{}");
       
-      // Préparer FormData pour l'envoi (inclut la photo)
-      const formData = new FormData();
-      
-      // Données utilisateur (étape 1)
-      formData.append('username', donneesEtape1.username);
-      formData.append('password', donneesEtape1.password);
-      formData.append('password_confirmation', donneesEtape1.password_confirmation);
-      formData.append('email', donneesEtape1.email);
-      formData.append('first_name', formulaire.prenom);
-      formData.append('last_name', formulaire.nom);
-      formData.append('telephone', formulaire.contact);
-      
-      // Données étudiant (étape 2)
-      formData.append('date_naiss', formulaire.date_naissance);
-      formData.append('lieu_naiss', formulaire.lieu_naiss);
-      if (formulaire.autre_prenom) {
-        formData.append('autre_prenom', formulaire.autre_prenom);
-      }
-      if (formulaire.numero_carte) {
-        formData.append('numero_carte', formulaire.num_carte);
-      }
-      if (formulaire.photo) {
-        formData.append('photo', formulaire.photo);
-      }
-
-      // Envoyer les données
-      const response = await authAPI.apiInstance().post('/auth/register-etudiant/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      const data = response.data;
-
-      // Stocker les données pour les prochaines étapes
-      const donneesAEtager = {
-        ...donneesEtape1,
+      // Combiner toutes les données dans localStorage
+      const donneesCompletes = {
+        // Étape 1
+        email: donneesEtape1.email,
+        username: donneesEtape1.username,
+        password: donneesEtape1.password,
+        password_confirmation: donneesEtape1.password_confirmation,
+        
+        // Étape 2
         ...formulaire,
-        utilisateur_id: data.user_id,
-        etudiant_id: data.etudiant_id
+        photoNom: formulaire.photo?.name,
+        photoBase64: apercu
       };
-      localStorage.setItem("inscription_step1", JSON.stringify(donneesAEtager));
+
+      // Sauvegarder toutes les données pour l'étape finale
+      localStorage.setItem("inscription_step2", JSON.stringify(donneesCompletes));
       
-      // Naviguer vers l'étape 3
+      // Naviguer vers l'étape 3 (pas de création utilisateur ici)
       router.push('/etudiant/inscription/etape-3');
-    } catch (error) {
-      console.error("Erreur API:", error.response?.data || error.message);
       
-      if (error.response?.data) {
-        const errors = error.response.data;
-        // Gestion des erreurs
-        Object.keys(errors).forEach(key => {
-          if (errors[key]) {
-            setErreurs(prev => ({ ...prev, [key]: Array.isArray(errors[key]) ? errors[key][0] : errors[key] }));
-          }
-        });
-      } else {
-        setErreurs({ formulaire: "Erreur de connexion au serveur" });
-      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      setErreurs({ formulaire: "Une erreur s'est produite lors de la sauvegarde" });
     } finally {
       setChargement(false);
     }
@@ -201,6 +164,9 @@ export default function NouvelEtudiantStep2() {
   return (
     <form onSubmit={soumettreFormulaire} className="bg-white backdrop-blur-md px-8 py-10 w-full max-w-4xl flex flex-col gap-6 border border-gray-300 rounded-lg shadow-lg mx-auto">
       <h2 className="text-2xl font-bold text-center text-blue-800 mb-4">Informations personnelles</h2>
+      <p className="text-center text-sm text-gray-600 mb-4">
+        📝 Vos données sont sauvegardées temporairement. Le compte sera créé à la dernière étape.
+      </p>
       
       {/* Photo de profil */}
       <div className="flex flex-col items-center gap-2 mb-6">
@@ -282,10 +248,9 @@ export default function NouvelEtudiantStep2() {
           <div>
             <label className="block text-gray-700 font-semibold mb-2">
               Numéro de carte (optionnel)
-              <span className="text-xs text-gray-500 font-normal ml-2"></span>
             </label>
             <input
-              name="numero_carte"
+              name="num_carte"
               value={formulaire.num_carte}
               onChange={gererChangement}
               type="text"
@@ -343,16 +308,17 @@ export default function NouvelEtudiantStep2() {
           </div>
         </div>
       </div>
+
       {/* Boutons d'action */}
       <div className="flex justify-between mt-6 gap-4">
-        <Link href="/" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-lg shadow transition-all text-center">
-          Annuler
+        <Link href="/etudiant/inscription/etape-1" className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg shadow transition-all text-center">
+          Retour
         </Link>
         <button 
           type="submit" 
           disabled={chargement}
           className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-8 rounded-lg shadow transition-all disabled:opacity-50">
-          {chargement ? "Création..." : "Suivant"}
+          {chargement ? "Sauvegarde..." : "Suivant"}
         </button>
       </div>
     </form>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import inscriptionService from "@/services/inscriptionService";
+import { authAPI } from '@/services/authService';
 import api from "@/services/api";
 
 export default function NouvelEtudiantStep4() {
@@ -20,41 +21,35 @@ export default function NouvelEtudiantStep4() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Configurer l'intercepteur pour inclure le token JWT
+  // Charger les données des étapes précédentes
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setError("Vous devez être connecté pour continuer.");
-      router.push("/login");
-      return;
-    }
-    api.interceptors.request.use((config) => {
-      config.headers.Authorization = `Bearer ${token}`;
-      return config;
-    });
-  }, [router]);
-
-  // Charger les données de l'étape 3 depuis localStorage
-  useEffect(() => {
-    const loadSavedData = () => {
-      const savedData = localStorage.getItem("inscription_step3");
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        setInfosPedagogiques(parsedData);
-        fetchUEs({
-          parcours: parsedData.parcours_id,
-          filiere: parsedData.filiere_id,
-          annee_etude: parsedData.annee_etude_id,
-        });
-      } else {
-        setError("Aucune donnée pédagogique trouvée. Veuillez compléter l'étape 3.");
-        router.push("/etudiant/inscription/etape-3");
+    const loadAllData = () => {
+      // Vérifier que toutes les données sont présentes
+      const step1Data = localStorage.getItem("inscription_step1");
+      const step2Data = localStorage.getItem("inscription_step2");
+      const step3Data = localStorage.getItem("inscription_step3");
+      
+      if (!step1Data || !step2Data || !step3Data) {
+        setError("Données d'inscription incomplètes. Veuillez reprendre depuis le début.");
+        router.push("/etudiant/inscription/etape-1");
+        return;
       }
+
+      const parsedStep3 = JSON.parse(step3Data);
+      setInfosPedagogiques(parsedStep3);
+      
+      // Charger les UEs pour cette configuration
+      fetchUEs({
+        parcours: parsedStep3.parcours_id,
+        filiere: parsedStep3.filiere_id,
+        annee_etude: parsedStep3.annee_etude_id,
+      });
     };
-    loadSavedData();
+    
+    loadAllData();
   }, [router]);
 
-  // Récupérer les UEs depuis l'API
+  // Récupérer les UEs depuis l'API (sans authentification)
   const fetchUEs = async (params) => {
     setLoading(true);
     try {
@@ -80,7 +75,87 @@ export default function NouvelEtudiantStep4() {
     }));
   };
 
-  // Soumettre l'inscription
+  // Convertir base64 en File object pour FormData
+  const base64ToFile = (base64String, filename, mimeType) => {
+    const byteCharacters = atob(base64String.split(',')[1]);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new File([byteArray], filename, { type: mimeType });
+  };
+
+  // Création atomique complète : Utilisateur + Étudiant + Inscription
+  const createCompleteRegistration = async (allData, selectedUEIds) => {
+    // Préparer FormData pour l'étudiant
+    const formData = new FormData();
+    
+    // Données utilisateur (étape 1)
+    formData.append('username', allData.step1.username);
+    formData.append('password', allData.step1.password);
+    formData.append('email', allData.step1.email);
+    formData.append('first_name', allData.step2.prenom);
+    formData.append('last_name', allData.step2.nom);
+    formData.append('telephone', allData.step2.contact);
+    
+    // Données étudiant (étape 2)
+    formData.append('date_naiss', allData.step2.date_naissance);
+    formData.append('lieu_naiss', allData.step2.lieu_naiss);
+    if (allData.step2.autre_prenom) {
+      formData.append('autre_prenom', allData.step2.autre_prenom);
+    }
+    if (allData.step2.num_carte) {
+      formData.append('num_carte', allData.step2.num_carte);
+    }
+    
+    // Gérer la photo si elle existe
+    if (allData.step2.photoBase64 && allData.step2.photoNom) {
+      const photoFile = base64ToFile(
+        allData.step2.photoBase64, 
+        allData.step2.photoNom, 
+        'image/jpeg'
+      );
+      formData.append('photo', photoFile);
+    }
+
+    // Étape 1 : Créer l'utilisateur et l'étudiant
+    const userResponse = await authAPI.apiInstance().post('/auth/register-etudiant/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    const { user_id, etudiant_id } = userResponse.data;
+
+    // Étape 2 : Récupérer l'année académique active
+    const anneeResponse = await api.get("/inscription/annee-academique/", {
+      params: { ordering: "-libelle" },
+    });
+    const anneeAcademiqueId = anneeResponse.data[0]?.id;
+
+    if (!anneeAcademiqueId) {
+      throw new Error("Aucune année académique disponible.");
+    }
+
+    // Étape 3 : Créer l'inscription pédagogique
+    const inscriptionData = {
+      etudiant: etudiant_id,
+      parcours: allData.step3.parcours_id,
+      filiere: allData.step3.filiere_id,
+      annee_etude: allData.step3.annee_etude_id,
+      anneeAcademique: anneeAcademiqueId,
+      ues: selectedUEIds,
+      numero: `INS-${Date.now()}`,
+    };
+
+    const inscriptionResponse = await inscriptionService.createInscription(inscriptionData);
+
+    return {
+      user: userResponse.data,
+      inscription: inscriptionResponse
+    };
+  };
+
+  // Soumettre l'inscription complète
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -90,6 +165,7 @@ export default function NouvelEtudiantStep4() {
     const selectedUEIds = Object.keys(selectedUEs)
       .filter((id) => selectedUEs[id])
       .map(Number);
+      
     if (selectedUEIds.length === 0) {
       setError("Veuillez sélectionner au moins une UE.");
       setLoading(false);
@@ -100,6 +176,7 @@ export default function NouvelEtudiantStep4() {
     const totalCredits = ues
       .filter((ue) => selectedUEs[ue.id])
       .reduce((sum, ue) => sum + ue.nbre_credit, 0);
+      
     if (totalCredits > 30) {
       setError("Le total des crédits ne peut pas dépasser 30.");
       setLoading(false);
@@ -107,51 +184,55 @@ export default function NouvelEtudiantStep4() {
     }
 
     try {
-      // Récupérer l'ID de l'étudiant connecté
-      const userResponse = await api.get("/auth/me/");
-      const etudiantId = userResponse.data.etudiant_id;
+      // Récupérer toutes les données des étapes
+      const step1Data = JSON.parse(localStorage.getItem("inscription_step1"));
+      const step2Data = JSON.parse(localStorage.getItem("inscription_step2"));
+      const step3Data = JSON.parse(localStorage.getItem("inscription_step3"));
 
-      // Récupérer l'année académique active
-      const anneeResponse = await api.get("/inscription/annee-academique/", {
-        params: { ordering: "-libelle" }, // Prendre la plus récente
-      });
-      const anneeAcademiqueId = anneeResponse.data[0]?.id;
-
-      if (!anneeAcademiqueId) {
-        throw new Error("Aucune année académique disponible.");
-      }
-
-      // Préparer les données pour l'inscription
-      const inscriptionData = {
-        etudiant: etudiantId,
-        parcours: infosPedagogiques.parcours_id,
-        filiere: infosPedagogiques.filiere_id,
-        annee_etude: infosPedagogiques.annee_etude_id,
-        anneeAcademique: anneeAcademiqueId,
-        ues: selectedUEIds,
-        numero: `INS-${Date.now()}`,
+      const allData = {
+        step1: step1Data,
+        step2: step2Data,
+        step3: step3Data
       };
 
-      // Envoyer la requête POST
-      const response = await inscriptionService.createInscription(inscriptionData);
-      console.log("Inscription réussie:", response);
+      console.log("🚀 Début de la création atomique...");
+      
+      // Créer tout en une fois
+      const result = await createCompleteRegistration(allData, selectedUEIds);
+      
+      console.log("✅ Inscription complète réussie:", result);
 
       // Nettoyer le localStorage
       localStorage.removeItem("inscription_step1");
+      localStorage.removeItem("inscription_step2");
       localStorage.removeItem("inscription_step3");
 
       // Rediriger vers la page de confirmation
-      router.push("/etudiant/inscription/confirmation");
-    } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          "Erreur lors de la finalisation de l'inscription."
-      );
-      console.error("Erreur dans handleSubmit:", err.response?.data || err.message);
+      alert("Inscription réussie ! Vous pouvez maintenant vous connecter.");      
+          
+      
+      // Gestion spécifique des erreurs
+      if (err.response?.status === 400) {
+        const errors = err.response.data;
+        if (errors.username) {
+          setError("Ce nom d'utilisateur existe déjà. Veuillez en choisir un autre.");
+        } else if (errors.email) {
+          setError("Cette adresse email est déjà utilisée.");
+        } else {
+          setError("Erreur de validation des données. Vérifiez vos informations.");
+        }
+      } else {
+        setError("Erreur lors de la finalisation de l'inscription. Veuillez réessayer.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  // Calculer le total des crédits sélectionnés
+  const totalCreditsSelectionnes = ues
+    .filter((ue) => selectedUEs[ue.id])
+    .reduce((sum, ue) => sum + ue.nbre_credit, 0);
 
   return (
     <form
@@ -159,16 +240,34 @@ export default function NouvelEtudiantStep4() {
       className="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl"
     >
       <h2 className="text-2xl font-bold text-center mb-6">
-        Sélection des Unités d'Enseignement
+        Finalisation de l'inscription
       </h2>
 
-      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700">
+          <div className="flex items-center">
+            <span className="text-red-500 mr-2">❌</span>
+            {error}
+          </div>
+        </div>
+      )}
 
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3">UE disponibles pour :</h3>
-        <p>Filière: {infosPedagogiques.filiere_nom}</p>
-        <p>Parcours: {infosPedagogiques.parcours_libelle}</p>
-        <p>Année: {infosPedagogiques.annee_etude_libelle}</p>
+      <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+        <h3 className="text-lg font-semibold mb-3 text-blue-800">📋 Récapitulatif de votre inscription</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <p><strong>Filière:</strong> {infosPedagogiques.filiere_nom}</p>
+          <p><strong>Parcours:</strong> {infosPedagogiques.parcours_libelle}</p>
+          <p><strong>Année:</strong> {infosPedagogiques.annee_etude_libelle}</p>
+        </div>
+      </div>
+
+      <div className="mb-4 text-center">
+        <p className="text-lg font-semibold">
+          Crédits sélectionnés: <span className={totalCreditsSelectionnes > 30 ? "text-red-600" : "text-green-600"}>{totalCreditsSelectionnes}/30</span>
+        </p>
+        {totalCreditsSelectionnes > 70 && (
+          <p className="text-red-500 text-sm">⚠️ Le total des crédits ne peut pas dépasser 70</p>
+        )}
       </div>
 
       {/* Tableau des UEs */}

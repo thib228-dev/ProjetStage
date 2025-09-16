@@ -5,7 +5,7 @@ const inscriptionService = {
   getUEs: async (params) => {
     try {
       console.log("Envoi requête GET UE avec param s:", params);
-      const response = await api.get("/notes/ues/filtrer", { params });
+      const response = await api.get("/notes/ues/filtrer/", { params });
       console.log("Réponse UE reçue:", response.data);
       return response.data; 
     } catch (error) {
@@ -18,7 +18,7 @@ const inscriptionService = {
   createInscription: async (data) => {
     try {
       console.log("Envoi requête POST inscription:", data);
-      const response = await api.post("inscriptions/inscription/", data);
+      const response = await api.post("inscription/inscription/", data);
       console.log("Réponse inscription reçue:", response.data);
       return response.data;
     } catch (error) {
