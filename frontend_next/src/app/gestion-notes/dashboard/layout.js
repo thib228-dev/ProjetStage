@@ -2,7 +2,7 @@ import MenuLateralRespNote from "../../../components/navigation/MenuLateralRespN
 import Header from "../../../components/ui/Header";
 
 
-export default function DashboardProfLayout({ children }) {
+export default function DashboardRespNoteLayout({ children }) {
   return (
     <>
     {/* Header en haut */}

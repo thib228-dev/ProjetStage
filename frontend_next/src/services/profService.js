@@ -1,6 +1,15 @@
 import api from "./api"; 
 
 const ProfesseurService = {
+  getAllProfesseurs: async () => {
+    try {
+      const response = await api.get(`utilisateurs/professeurs/`);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération des professeurs", error);
+      throw error;
+    }
+  },
     getMesUes: async () => {
     try {
       const response = await api.get(`utilisateurs/professeurs/mes_ues/`);
@@ -10,13 +19,12 @@ const ProfesseurService = {
       throw error;
     }
   },
-
-  getAllProfesseurs: async () => {
+  getMesUesId: async (professeurId) => {
     try {
-      const response = await api.get(`utilisateurs/professeurs/`);
+      const response = await api.get(`utilisateurs/professeurs/${professeurId}/ues-prof/`);
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de la récupération des professeurs", error);
+      console.error("Erreur lors de la récupération des UEs du professeur", error);
       throw error;
     }
   }

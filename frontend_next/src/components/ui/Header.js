@@ -1,28 +1,45 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
-/* const menuItems = [
-  { label: "Accueil", href: "/" },
-  {
-    label: "Étudiant",
-    children: [
-      { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
-      {label: "Données personnelles",protected: true,href: "/etudiant/dashboard/donnees-personnelles"},
-      {label: "Notes",protected: true,href: "/etudiant/dashboard/notes"},
-      {label: "Statistiques",protected: true,href: "/etudiant/dashboard/statistiques"},
-    ],
-  },
-  {
-    label: "Nos Professeurs",href: "/nos-profs" 
-  },
-  { label: "Nos programmes", href: "/programmes" },
-  { label: "Contactez-nous", href: "/contact" },
-]; */
-// Menus selon rôles
+export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [role, setRole] = useState("visiteur");
+
+  // Charger rôle depuis localStorage
+  useEffect(() => {
+    const storedRole = localStorage.getItem("user_role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []);
+
+  // Déterminer la route du menu Personnel selon rôle
+  const getPersonnelHref = (role) => {
+    switch (role) {
+      case "admin":
+        return "/admin/dashboard";
+      case "professeur":
+        return "/prof/dashboard";
+      case "secretaire":
+        return "/secretaire/dashboard";
+      case "responsable inscriptions":
+        return "/resp-inscriptions/dashboard";
+      case "resp_notes":
+        return "/resp-notes/dashboard";
+      default:
+        return "/";
+    }
+  };
+
+  const personnelHref = getPersonnelHref(role);
+
+  // Menus pour tout le monde
   const baseMenu = [
     { label: "Accueil", href: "/" },
     { label: "Nos Professeurs", href: "/nos-profs" },
@@ -30,65 +47,49 @@ import React, { useState, useEffect } from "react";
       label: "Étudiant",
       children: [
         { label: "Inscriptions", href: "/etudiant/inscription/etape-1" },
-        { label: "Données personnelles", protected: true, href: "/etudiant/dashboard/donnees-personnelles" },
+        {
+          label: "Données personnelles",
+          protected: true,
+          href: "/etudiant/dashboard/donnees-personnelles",
+        },
         { label: "Notes", protected: true, href: "/etudiant/dashboard/notes" },
-      {label: "Statistiques",protected: true,href: "/etudiant/dashboard/statistiques"},
+        {
+          label: "Statistiques",
+          protected: true,
+          href: "/etudiant/dashboard/statistiques",
+        },
       ],
     },
     { label: "Nos programmes", href: "/programmes" },
     { label: "Contactez-nous", href: "/contact" },
-    
   ];
 
+  // Menus quand c’est un membre du personnel
   const personnelMenu = [
     { label: "Accueil", href: "/" },
     { label: "Nos Professeurs", href: "/nos-profs" },
     { label: "Nos programmes", href: "/programmes" },
     { label: "Contactez-nous", href: "/contact" },
-    {
-      label: "Personnel",
-      children: [
-        { label: "Gestion Étudiants", href: "/admin/etudiants" },
-        { label: "Gestion Professeurs", href: "/admin/professeurs" },
-      ],
-    },
-    { label: "Service examen", href: "/enseignant/dashboard/cours" },
+    { label: "Personnel", href: personnelHref },
+    { label: "Service examen", href: "/service-examen/notes/mes-ues" },
   ];
 
+  // Sélectionner menu selon rôle
+  const menuItems =
+    role === "admin" ||
+    role === "professeur" ||
+    role === "secretaire" ||
+    role === "responsable inscriptions" ||
+    role === "resp_notes"
+      ? personnelMenu
+      : baseMenu;
 
-export default function Header() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [role, setRole] = useState("");
-
-  useEffect(() => {
-  const storedRole = localStorage.getItem("user_role");
-  if (storedRole) {
-    setRole(storedRole);
-  } 
-  else {
-    setRole("visiteur"); // rôle par défaut
-  }
-}, []);
-
-// Construire menu final selon user.role
-  let menuItems = [...baseMenu];
-
-if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === "responsable inscriptions"|| role === "chef service examen") {
-  menuItems = [...personnelMenu];
-}
-
-
-  const handleDropdown = (label) => {
-    setOpenDropdown((prev) => (prev === label ? null : label));
-  };
-
+  // Redirections protégées
   const handleProtectedRoute = (href) => {
     localStorage.setItem("etudiant_redirect", href);
     router.push("/login");
   };
-  
+
   const handleProtectedPersonnel = (href) => {
     localStorage.setItem("personnel_redirect", href);
     router.push("/login");
@@ -97,22 +98,40 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
   return (
     <header className="w-full bg-white/80 backdrop-blur-md shadow fixed top-0 left-0 z-20 px-4 sm:px-8 py-3 h-16">
       <div className="flex justify-between items-center">
-        <Link href="/" className="font-extrabold text-blue-800 text-2xl tracking-wide">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-extrabold text-blue-800 text-2xl tracking-wide"
+        >
           <img src="/images/logo-epl.png" className="h-10 w-auto" />
         </Link>
 
+        {/* Menu principal */}
         <nav className="hidden sm:flex gap-6 font-semibold relative items-center">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
             const hasChildren = !!item.children;
+            let isActive = pathname === item.href;
+
+            // Forcer l'activation du menu "Personnel"
+            if (
+              (role === "admin" ||
+                role === "professeur" ||
+                role === "secretaire" ||
+                role === "responsable inscriptions" ||
+                role === "resp_notes") &&
+              item.label === "Personnel"
+            ) {
+              isActive = true;
+            }
 
             return (
               <div
                 key={item.label}
                 className="relative group"
-                onMouseEnter={() => handleDropdown(item.label)}
+                onMouseEnter={() => setOpenDropdown(item.label)}
                 onMouseLeave={() => setOpenDropdown(null)}
               >
+                {/* Lien ou bouton principal */}
                 {hasChildren ? (
                   <button
                     className={`px-3 py-2 rounded transition flex items-center gap-1 ${
@@ -137,18 +156,16 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
                   </Link>
                 )}
 
+                {/* Sous-menu */}
                 {hasChildren && openDropdown === item.label && (
                   <div className="absolute top-full left-0 bg-white shadow-md w-56 z-30">
                     {item.children.map((child) => {
-                      const specialLabels = ["Enseignant", "Secretaire", "Responsable inscriptions", "Chef service examen"];
-                      const isSpecial = specialLabels.includes(child.label);
-                  
                       if (child.protected) {
                         return (
                           <button
                             key={child.label}
                             onClick={() =>
-                              isSpecial
+                              role !== "visiteur"
                                 ? handleProtectedPersonnel(child.href)
                                 : handleProtectedRoute(child.href)
                             }
@@ -158,7 +175,6 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
                           </button>
                         );
                       }
-
                       return (
                         <Link
                           key={child.href}
@@ -175,7 +191,7 @@ if (role === "admin"|| role === "professeur"|| role === "secretaire"|| role === 
             );
           })}
 
-          {/* Bouton Connexion  */}
+          {/* Bouton Connexion */}
           <Link
             href="/login"
             className="px-4 py-2 bg-blue-900 text-white rounded-md hover:bg-blue-700 transition flex items-center gap-1"

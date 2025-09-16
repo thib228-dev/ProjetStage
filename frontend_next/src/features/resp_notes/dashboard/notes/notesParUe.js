@@ -2,13 +2,14 @@
 import React, { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ProfesseurService from "@/services/profService";
+import UEService from "@/services/ueService";
 import FiliereService from "@/services/filiereService";
 import ParcoursService from "@/services/parcoursService";
 import AnneeEtudeService from "@/services/anneeEtudeService";
 import SemestreService from "@/services/semestreService";
 import { FaClipboardList, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
-export default function CoursProf() {
+export default function Notes() {
 const [filieres, setFilieres] = useState([]);
 const [parcours, setParcours] = useState([]);
 const [anneesEtude, setAnneesEtude] = useState([]);
@@ -57,20 +58,15 @@ useEffect(() => {
       .catch((err) => console.error(err));
       console.log("Semestres data:", semestres);
 }, []);
-
-
 // récupère les UEs du prof connecté
 useEffect(() => {
-    ProfesseurService.getMesUes()
+    UEService.getAllUE()
       .then((data) => setCourses(data))
       .catch((err) => console.error(err));
       console.log("Courses data:", courses);
   }, []);
 
-const handleSaisirNotes = () => {
-    router.push('/enseignant/dashboard/notes');
-  };
-
+// Gestion du tri
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -90,7 +86,7 @@ const handleSaisirNotes = () => {
     const SelectedUeId= course.id;
     console.log("SelectedUeId:", SelectedUeId);
     setSelectedUeId(SelectedUeId);
-    router.push(`/enseignant/dashboard/cours/${SelectedUeId}/etudiants-inscrits`);
+    router.push(`/service-examen/notes/${SelectedUeId}/etudiants-inscrits`);
   };
 
   const trouverObjetParId = (array,id) => {
@@ -98,10 +94,6 @@ const handleSaisirNotes = () => {
     return objet;
   }
 //Filtres
-/* const filteredCourses = selectedFiliere
-    ? courses.filter((c) => trouverObjetParId(filieres, c.filiere)?. abbreviation === selectedFiliere)
-    : courses; */
-
 const filteredCourses = courses.filter((c) => {
   const filiereOk =
     !selectedFiliere ||
@@ -157,9 +149,9 @@ const sortedCourses = [...filteredCourses].sort((a, b) => {
           onChange={(e) => {
               const filiereObj = filieres.find(f => f.abbreviation === e.target.value);
               setSelectedFiliere(e.target.value);
-              console.log("Valeur sélectionnée:", e.target.value); // ✅ valeur correcte
+              console.log("Valeur sélectionnée:", e.target.value); 
               setSelectedFiliereObject(filiereObj);
-              console.log("Filiere choisie:", filiereObj); // ✅ valeur correcte
+              console.log("Filiere choisie:", filiereObj);
           }}
           className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >

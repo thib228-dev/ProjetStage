@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import EvaluationUE from "@/features/enseignant/dashboard/cours/evaluationUE";
+import EvaluationUE from "@/features/service-examen/cours/evaluationUE";
 
 export default function EvaluationUEPage({ params }) {
   const { id } = params;

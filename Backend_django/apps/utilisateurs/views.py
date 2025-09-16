@@ -66,7 +66,7 @@ class EtudiantViewSet(viewsets.ModelViewSet):
 class ProfesseurViewSet(viewsets.ModelViewSet):
     queryset = Professeur.objects.all().order_by('utilisateur__last_name')
     serializer_class = ProfesseurSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    #permission_classes = [IsAdminOrReadOnly]
    
     def get_queryset(self):
         user = self.request.user
@@ -92,7 +92,17 @@ class ProfesseurViewSet(viewsets.ModelViewSet):
         ues = [aff.ue for aff in affectations]
         serializer = UESerializer(ues, many=True)
         return Response(serializer.data) """
+        
+    #Recuperation des UEs d'un professeur donné (par id)
+    @action(detail=True, methods=['get'], url_path='ues-prof')
+    def mes_ues_id(self, request, pk=None):
+        professeur = self.get_object()
+        affectations = professeur.affectations.all()
+        ues = [aff.ue for aff in affectations]
+        serializer = UESerializer(ues, many=True)
+        return Response(serializer.data)
     
+    #Recuperation des UEs d'un professeur connecté
     @action(detail=False, methods=['get'])
     def mes_ues(self, request):
         professeur = request.user.professeur 

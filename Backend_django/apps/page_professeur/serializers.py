@@ -14,7 +14,7 @@ class UESerializer(serializers.ModelSerializer):
     semestre = serializers.PrimaryKeyRelatedField(queryset=Semestre.objects.all(), required=True)
     class Meta:
         model = UE
-        fields = ['id', 'libelle', 'code', 'nbre_credit', 'composite','evaluations', 'parcours', 'filiere', 'annee_etude','semestre']
+        fields = '__all__'
         required_fields = ['libelle', 'code', 'nbre_credit', 'composite', 'parcours', 'filiere', 'annee_etude','semestre']
     
 
@@ -26,6 +26,7 @@ class EvaluationSerializer(serializers.ModelSerializer):
     )
 
     # lecture → on affiche les infos de l’UE
+    
     #ue_obj = UESerializer(read_only=True)
 
     class Meta:
@@ -88,20 +89,17 @@ class ProjetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Projet
         fields = '__all__'
-    def create(self, validated_data):
-        user = self.context['request'].user
-        if not hasattr(user, 'professeur'):
-            raise serializers.ValidationError("Seuls les professeurs peuvent créer un projet.")
-
-        validated_data['professeur_encadrant'] = user.professeur
-        return Projet.objects.create(**validated_data)
-
+        read_only_fields = ['professeur']  # Le professeur est défini automatiquement
+    
     def update(self, instance, validated_data):
-        for field in ['titre', 'resume', 'date_debut', 'date_fin']:
+        # Empêcher la modification du professeur
+        validated_data.pop('professeur', None)
+        
+        for field in ['titre', 'resume', 'date_debut', 'date_fin', 'lien']:
             setattr(instance, field, validated_data.get(field, getattr(instance, field)))
+        
         instance.save()
         return instance
-    
 
 class RechercheSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,7 +114,7 @@ class RechercheSerializer(serializers.ModelSerializer):
         return Recherche.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        for field in ['titre', 'resume', 'date_publication']:
+        for field in ['titre', 'resume', 'date_publication', 'lien']:
             setattr(instance, field, validated_data.get(field, getattr(instance, field)))
         instance.save()
         return instance
@@ -140,7 +138,7 @@ class EncadrementSerializer(serializers.ModelSerializer):
         return Encadrement.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        for field in ['etudiant', 'projet', 'commentaire']:
+        for field in ['nom_etudiant', 'titre', 'niveau', 'filiere', 'type', 'annee', 'lien']:
             setattr(instance, field, validated_data.get(field, getattr(instance, field)))
         instance.save()
         return instance
@@ -150,14 +148,24 @@ class PeriodeSaisieSerializer(serializers.ModelSerializer):
     class Meta:
         model = PeriodeSaisie
         fields = '__all__'
-        read_only_fields = ['responsable', 'active']  # le backend gère active automatiquement
+        extra_kwargs = {
+            "responsable": {"required": False, "allow_null": True}
+        }
 
+    
     def validate(self, data):
-        if data['date_debut'] >= data['date_fin']:
-            raise serializers.ValidationError("La date de début doit être avant la date de fin.")
-        if data['date_debut'] < timezone.now().date():
-            raise serializers.ValidationError("La date de début ne peut pas être dans le passé.")
-        return data
+        date_debut = data.get("date_debut")
+        date_fin = data.get("date_fin")
+
+        if date_debut and date_fin:
+            if date_debut >= date_fin:
+                raise serializers.ValidationError(
+                    "La date de début doit être avant la date de fin."
+                )
+            if date_debut < timezone.now().date():
+                raise serializers.ValidationError(
+                    "La date de début ne peut pas être dans le passé."
+                )
     
 class AffectationUeSerializer(serializers.ModelSerializer):
     class Meta:
