@@ -26,7 +26,7 @@ function ListeEtudiantsUE({ ueId }) {
         setEtudiants(res.etudiants);
         setEvaluations(res.evaluations);
         if (res.evaluations.length === 0) {
-          router.push(`/enseignant/dashboard/cours/mes-ues/${ueId}/evaluations`);
+          router.push(`/service-examen/notes/${ueId}/evaluations`);
         }
       } catch (err) {
         console.error("Erreur récupération notes :", err);
@@ -36,6 +36,35 @@ function ListeEtudiantsUE({ ueId }) {
     };
     fetchData();
   }, [ueId]);
+
+  const handleEdit = (index, etu) => {
+    setEditIndex(index);
+    setEditedData({ note: etu.notes[selectedEvaluation.id] ?? "" });
+  };
+
+  const handleSave = async (index, etu) => {
+    if (!selectedEvaluation) return;
+    const noteValue = parseFloat(editedData.note);
+    if (isNaN(noteValue) || noteValue < 0 || noteValue > 20) {
+      alert("Veuillez entrer une note valide entre 0 et 20.");
+      return;
+    }
+
+    try {
+      await NoteService.createNote(etu.id, selectedEvaluation.id, noteValue);
+      setEtudiants((prev) =>
+        prev.map((e, i) =>
+          i === index
+            ? { ...e, notes: { ...e.notes, [selectedEvaluation.id]: noteValue } }
+            : e
+        )
+      );
+      setEditIndex(null);
+    } catch (err) {
+      console.error("Erreur lors de la sauvegarde :", err);
+    }
+  };
+
 
   // ✅ Calcul moyenne pondérée
   const calculerMoyenne = (etu) => {
@@ -142,7 +171,7 @@ function ListeEtudiantsUE({ ueId }) {
             </option>
           ))}
         </select>
-        <div> <button onClick={() => router.push(`/enseignant/dashboard/cours/mes-ues/${ueId}/evaluations`)
+        <div> <button onClick={() => router.push(`/service-examen/notes/${ueId}/evaluations`)
          }> Modifier Evaluation </button> </div>
       </div>
       

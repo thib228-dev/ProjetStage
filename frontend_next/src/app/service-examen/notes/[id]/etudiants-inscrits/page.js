@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ListeEtudiantsUE from "@/features/enseignant/dashboard/cours/listeEtudiantsUe";
+import ListeEtudiantsUE from "@/features/service-examen/cours/listeEtudiantsUe";
 
 export default  function PageEtudiantUe({ params }) {
   const { id } = params;

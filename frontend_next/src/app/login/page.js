@@ -27,12 +27,13 @@ export default function Connexion() {
 
   
   async function handleFormSubmit(valeurs) {
+    console.log("Token:", localStorage.getItem('access_token'))
     try {
       const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
 
       // Sauvegarde du token dans localStorage
-      //localStorage.setItem("access_token", data.access);
-      //localStorage.setItem("refresh_token", data.refresh);
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("user_role", data.user.role);
       console.log("Connexion réussie", data.user);
       // Redirection après connexion
