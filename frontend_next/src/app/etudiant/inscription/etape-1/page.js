@@ -6,6 +6,6 @@ import NouvelEtudiantStep1 from "@/features/etudiant/inscription/etape-1/NouvelE
 export default function PageStep1() {
   const router = useRouter();
   return (
-    <NouvelEtudiantStep1 onNext={() => router.push("/etudiant/inscription/etape-2")} />
+    <NouvelEtudiantStep1 />
   );
 }

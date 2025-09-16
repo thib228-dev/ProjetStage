@@ -22,7 +22,7 @@ from apps.page_professeur.serializers import UESerializer
 
 # ----- UTILISATEUR DE BASE -----
 class UtilisateurViewSet(viewsets.ModelViewSet):
-    queryset = Utilisateur.objects.all()
+    queryset = Utilisateur.objects.all().order_by('last_name')
     serializer_class = UtilisateurSerializer
     #permission_classes = [IsAdminUser]  # Seul admin peut voir/lister tous les utilisateurs
    
@@ -40,7 +40,7 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
 
 # ----- ETUDIANT -----
 class EtudiantViewSet(viewsets.ModelViewSet):
-    queryset = Etudiant.objects.all()
+    queryset = Etudiant.objects.all().order_by('utilisateur__last_name')
     serializer_class = EtudiantSerializer
    # permission_classes = [IsAdminOrReadOnly]
 
@@ -50,7 +50,8 @@ class EtudiantViewSet(viewsets.ModelViewSet):
             return Etudiant.objects.filter(utilisateur=user)
         return super().get_queryset()
 
-    @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get', 'put'], 
+    permission_classes=[IsAuthenticated])
     def me(self, request):
         instance = request.user.etudiant
         serializer = self.get_serializer(instance, data=request.data if request.method == 'PUT' else None, partial=True)
@@ -63,7 +64,7 @@ class EtudiantViewSet(viewsets.ModelViewSet):
 
 # ----- PROFESSEUR -----
 class ProfesseurViewSet(viewsets.ModelViewSet):
-    queryset = Professeur.objects.all()
+    queryset = Professeur.objects.all().order_by('utilisateur__last_name')
     serializer_class = ProfesseurSerializer
     #permission_classes = [IsAdminOrReadOnly]
    
@@ -113,7 +114,7 @@ class ProfesseurViewSet(viewsets.ModelViewSet):
 
 # ----- SECRETAIRE -----
 class SecretaireViewSet(viewsets.ModelViewSet):
-    queryset = Secretaire.objects.all()
+    queryset = Secretaire.objects.all().order_by('utilisateur__last_name')
     serializer_class = SecretaireSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -136,7 +137,7 @@ class SecretaireViewSet(viewsets.ModelViewSet):
 
 # ----- RESPONSABLE INSCRIPTION -----
 class RespInscriptionViewSet(viewsets.ModelViewSet):
-    queryset = RespInscription.objects.all()
+    queryset = RespInscription.objects.all().order_by('utilisateur__last_name')
     serializer_class = RespInscriptionSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -159,7 +160,7 @@ class RespInscriptionViewSet(viewsets.ModelViewSet):
 
 # ----- RESPONSABLE SAISIE NOTES -----
 class ResponsableSaisieNoteViewSet(viewsets.ModelViewSet):
-    queryset = ResponsableSaisieNote.objects.all()
+    queryset = ResponsableSaisieNote.objects.all().order_by('utilisateur__last_name')
     serializer_class = ResponsableSaisieNoteSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -181,7 +182,7 @@ class ResponsableSaisieNoteViewSet(viewsets.ModelViewSet):
     
 # ----- ADMINISTRATEUR -----
 class AdministrateurViewSet(viewsets.ModelViewSet):
-    queryset = Administrateur.objects.all()
+    queryset = Administrateur.objects.all().order_by('utilisateur__last_name')
     serializer_class = AdministrateurSerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -207,7 +208,7 @@ class ConnexionViewSet(viewsets.ModelViewSet):
     - Les admins peuvent voir toutes les connexions.
     - Un utilisateur ne voit que ses propres connexions.
     """
-    queryset = Connexion.objects.all()  
+    queryset = Connexion.objects.all().order_by('-date_connexion') # Trier par date de connexion décroissante 
     serializer_class = ConnexionSerializer
     permission_classes = [IsIntranet, IsAdminUser]
     def get_queryset(self):

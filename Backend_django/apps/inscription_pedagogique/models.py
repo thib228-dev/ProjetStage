@@ -3,8 +3,6 @@ from ..utilisateurs.models import Etudiant, RespInscription
 from ..page_professeur.models import UE  
 
 
-
-
 class Etablissement(models.Model):
     nom = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=10)
@@ -34,17 +32,12 @@ class Filiere(models.Model):
     def __str__(self):
         return self.nom
 
-
-
-    
 class AnneeAcademique(models.Model):
     libelle = models.CharField(max_length=9, unique=True)
 
     def __str__(self):
         return self.libelle 
 
-
-    
 class Semestre (models.Model):
     libelle = models.CharField(max_length=50)
 
@@ -67,9 +60,6 @@ class Inscription(models.Model):
     ues = models.ManyToManyField(UE, related_name='inscriptions')
     filiere = models.ForeignKey(Filiere,on_delete = models.CASCADE,  related_name = 'inscriptions')
     anneeAcademique = models.ForeignKey(AnneeAcademique, on_delete = models.CASCADE, related_name = 'inscriptions') 
-    
-
-
     
 class PeriodeInscription(models.Model):
     numero = models.CharField(max_length=50)

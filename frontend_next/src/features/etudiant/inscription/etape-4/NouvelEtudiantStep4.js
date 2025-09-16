@@ -1,208 +1,233 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { inscriptionService } from "@/services/inscriptionService";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import inscriptionService from "@/services/inscriptionService";
+import api from "@/services/api";
 
-export default function NouvelEtudiantStep4({ onBack, onComplete }) {
+export default function NouvelEtudiantStep4() {
   const [ues, setUes] = useState([]);
   const [selectedUEs, setSelectedUEs] = useState({});
+  const [infosPedagogiques, setInfosPedagogiques] = useState({
+    parcours_id: null,
+    filiere_id: null,
+    annee_etude_id: null,
+    parcours_libelle: "",
+    filiere_nom: "",
+    annee_etude_libelle: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const router = useRouter();
 
-  // Récupérer les données des étapes précédentes
-  const etudiantData = JSON.parse(localStorage.getItem("inscription_step1") || "{}");
-  const infosPedagogiques = JSON.parse(localStorage.getItem("inscription_step3") || "{}");
-
-  // 🔹 Récupération des UE selon filière, parcours, année
+  // Configurer l'intercepteur pour inclure le token JWT
   useEffect(() => {
-    const fetchUEs = async () => {
-      try {
-        const params = {
-          filiere: infosPedagogiques.filiere_id,
-          parcours: infosPedagogiques.parcours_id,
-          annee_etude: infosPedagogiques.annee_etude_id
-        };
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setError("Vous devez être connecté pour continuer.");
+      router.push("/login");
+      return;
+    }
+    api.interceptors.request.use((config) => {
+      config.headers.Authorization = `Bearer ${token}`;
+      return config;
+    });
+  }, [router]);
 
-        const res = await inscriptionService.getUEs(params);
-        setUes(res);
-
-        // Cocher toutes les UE par défaut
-        const initialSelection = {};
-        res.forEach(ue => {
-          initialSelection[ue.id] = true;
+  // Charger les données de l'étape 3 depuis localStorage
+  useEffect(() => {
+    const loadSavedData = () => {
+      const savedData = localStorage.getItem("inscription_step3");
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setInfosPedagogiques(parsedData);
+        fetchUEs({
+          parcours: parsedData.parcours_id,
+          filiere: parsedData.filiere_id,
+          annee_etude: parsedData.annee_etude_id,
         });
-        setSelectedUEs(initialSelection);
-
-      } catch (err) {
-        console.error("Erreur récupération UE:", err);
-        setError("Impossible de récupérer les UE");
+      } else {
+        setError("Aucune donnée pédagogique trouvée. Veuillez compléter l'étape 3.");
+        router.push("/etudiant/inscription/etape-3");
       }
     };
+    loadSavedData();
+  }, [router]);
 
-    if (infosPedagogiques.filiere_id) {
-      fetchUEs();
-    }
-  }, [infosPedagogiques]);
-
-  const handleCheckboxChange = (ueId) => {
-    setSelectedUEs(prev => ({
-      ...prev,
-      [ueId]: !prev[ueId]
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Récupérer les UEs depuis l'API
+  const fetchUEs = async (params) => {
     setLoading(true);
-    setError("");
-
     try {
-      // Récupérer les IDs des UE sélectionnées
-      const uesSelectionnees = Object.keys(selectedUEs)
-        .filter(id => selectedUEs[id])
-        .map(id => parseInt(id));
-
-      // Préparer les données pour l'inscription
-      const inscriptionData = {
-        etudiant: etudiantData.etudiant_id, // ID de l'étudiant créé dans le Step1
-        parcours: infosPedagogiques.parcours_id,
-        annee_etude: infosPedagogiques.annee_etude_id,
-        filiere: infosPedagogiques.filiere_id,
-        anneeAcademique: infosPedagogiques.annee_academique_id,
-        ues: uesSelectionnees
-      };
-
-      console.log("Données inscription:", inscriptionData);
-
-      // Envoyer la requête
-      const response = await inscriptionService.createInscription(inscriptionData);
-      
-      console.log("✅ Inscription réussie:", response.data);
-      
-      // Nettoyer le localStorage
-      localStorage.removeItem("inscription_step1");
-      localStorage.removeItem("inscription_step3");
-      
-      // Rediriger ou afficher message de succès
-      alert("Inscription pédagogique réussie !");
-      onComplete?.();
-
+      const response = await inscriptionService.getUEs({
+        parcours: params.parcours,
+        filiere: params.filiere,
+        annee_etude: params.annee_etude,
+      });
+      setUes(response);
     } catch (err) {
-      console.error("❌ Erreur inscription:", err.response?.data || err.message);
-      setError(err.response?.data?.error || "Erreur lors de l'inscription");
+      setError("Erreur lors de la récupération des UEs.");
+      console.error("Erreur dans fetchUEs:", err.response?.data || err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-2 bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Réessayer
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Gérer la sélection des UEs
+  const handleCheckboxChange = (ueId) => {
+    setSelectedUEs((prev) => ({
+      ...prev,
+      [ueId]: !prev[ueId],
+    }));
+  };
+
+  // Soumettre l'inscription
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    // Vérifier si au moins une UE est sélectionnée
+    const selectedUEIds = Object.keys(selectedUEs)
+      .filter((id) => selectedUEs[id])
+      .map(Number);
+    if (selectedUEIds.length === 0) {
+      setError("Veuillez sélectionner au moins une UE.");
+      setLoading(false);
+      return;
+    }
+
+    // Vérifier le total des crédits
+    const totalCredits = ues
+      .filter((ue) => selectedUEs[ue.id])
+      .reduce((sum, ue) => sum + ue.nbre_credit, 0);
+    if (totalCredits > 30) {
+      setError("Le total des crédits ne peut pas dépasser 30.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Récupérer l'ID de l'étudiant connecté
+      const userResponse = await api.get("/auth/me/");
+      const etudiantId = userResponse.data.etudiant_id;
+
+      // Récupérer l'année académique active
+      const anneeResponse = await api.get("/inscription/annee-academique/", {
+        params: { ordering: "-libelle" }, // Prendre la plus récente
+      });
+      const anneeAcademiqueId = anneeResponse.data[0]?.id;
+
+      if (!anneeAcademiqueId) {
+        throw new Error("Aucune année académique disponible.");
+      }
+
+      // Préparer les données pour l'inscription
+      const inscriptionData = {
+        etudiant: etudiantId,
+        parcours: infosPedagogiques.parcours_id,
+        filiere: infosPedagogiques.filiere_id,
+        annee_etude: infosPedagogiques.annee_etude_id,
+        anneeAcademique: anneeAcademiqueId,
+        ues: selectedUEIds,
+        numero: `INS-${Date.now()}`,
+      };
+
+      // Envoyer la requête POST
+      const response = await inscriptionService.createInscription(inscriptionData);
+      console.log("Inscription réussie:", response);
+
+      // Nettoyer le localStorage
+      localStorage.removeItem("inscription_step1");
+      localStorage.removeItem("inscription_step3");
+
+      // Rediriger vers la page de confirmation
+      router.push("/etudiant/inscription/confirmation");
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ||
+          "Erreur lors de la finalisation de l'inscription."
+      );
+      console.error("Erreur dans handleSubmit:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-150 via-yellow-50 to-blue-200 flex flex-col items-center justify-center px-4 py-12 pt-24">
-      
-      {/* En-tête */}
-      <div className="w-full max-w-4xl mb-6">
-        <button onClick={onBack} className="text-blue-700 font-semibold hover:underline">
-          ← Page précédente
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl"
+    >
+      <h2 className="text-2xl font-bold text-center mb-6">
+        Sélection des Unités d'Enseignement
+      </h2>
+
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-3">UE disponibles pour :</h3>
+        <p>Filière: {infosPedagogiques.filiere_nom}</p>
+        <p>Parcours: {infosPedagogiques.parcours_libelle}</p>
+        <p>Année: {infosPedagogiques.annee_etude_libelle}</p>
+      </div>
+
+      {/* Tableau des UEs */}
+      <div className="overflow-x-auto mb-6">
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2">Sélection</th>
+              <th className="border p-2">Code UE</th>
+              <th className="border p-2">Libellé</th>
+              <th className="border p-2">Crédits</th>
+              <th className="border p-2">Semestre</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ues.map((ue) => (
+              <tr key={ue.id} className="hover:bg-gray-50">
+                <td className="border p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedUEs[ue.id] || false}
+                    onChange={() => handleCheckboxChange(ue.id)}
+                    className="w-5 h-5 accent-blue-600"
+                  />
+                </td>
+                <td className="border p-2">{ue.code}</td>
+                <td className="border p-2">{ue.libelle}</td>
+                <td className="border p-2 text-center">{ue.nbre_credit}</td>
+                <td className="border p-2 text-center">
+                  {ue.semestre?.libelle || "N/A"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {ues.length === 0 && (
+        <div className="text-center text-gray-500 mb-6">
+          Aucune UE disponible pour ces critères.
+        </div>
+      )}
+
+      {/* Boutons d'action */}
+      <div className="flex justify-between mt-6 gap-4">
+        <Link
+          href="/etudiant/inscription/etape-3"
+          className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-8 rounded-lg shadow transition-all text-center"
+        >
+          Retour
+        </Link>
+        <button
+          type="submit"
+          disabled={loading || ues.length === 0}
+          className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Enregistrement..." : "Finaliser l'inscription"}
         </button>
       </div>
-
-      {/* Indicateurs d'étapes */}
-      <div className="flex items-center justify-center gap-6 mb-10">
-        {[1, 2, 3, 4].map((etape) => (
-          <div key={etape} className={`flex flex-col items-center ${etape === 4 ? 'text-blue-700' : 'text-gray-400'}`}>
-            <div className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${
-              etape === 4 ? 'border-blue-700 bg-blue-100' : 'border-gray-300 bg-white'
-            } font-bold text-lg`}>
-              {etape}
-            </div>
-            {etape < 4 && <div className="w-12 h-1 bg-gray-300 mt-1 mb-1 rounded" />}
-          </div>
-        ))}
-      </div>
-
-      {/* Formulaire */}
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl">
-        <h2 className="text-2xl font-bold text-center mb-6">Sélection des Unités d'Enseignement</h2>
-        
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">UE disponibles pour :</h3>
-          <p>Filière: {infosPedagogiques.filiere_nom}</p>
-          <p>Parcours: {infosPedagogiques.parcours_libelle}</p>
-          <p>Année: {infosPedagogiques.annee_etude_libelle}</p>
-        </div>
-
-        {/* Tableau des UE */}
-        <div className="overflow-x-auto mb-6">
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2">Sélection</th>
-                <th className="border p-2">Code UE</th>
-                <th className="border p-2">Libellé</th>
-                <th className="border p-2">Crédits</th>
-                <th className="border p-2">Semestre</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ues.map(ue => (
-                <tr key={ue.id} className="hover:bg-gray-50">
-                  <td className="border p-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedUEs[ue.id] || false}
-                      onChange={() => handleCheckboxChange(ue.id)}
-                      className="w-5 h-5 accent-blue-600"
-                    />
-                  </td>
-                  <td className="border p-2">{ue.code}</td>
-                  <td className="border p-2">{ue.libelle}</td>
-                  <td className="border p-2 text-center">{ue.credits}</td>
-                  <td className="border p-2 text-center">{ue.semestre}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {ues.length === 0 && (
-          <div className="text-center text-gray-500 mb-6">
-            Aucune UE disponible pour cette combinaison filière/parcours/année
-          </div>
-        )}
-
-        {/* Boutons */}
-        <div className="flex justify-between gap-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-all"
-          >
-            Retour
-          </button>
-          
-          <button
-            type="submit"
-            disabled={loading || ues.length === 0}
-            className="bg-green-700 hover:bg-green-800 text-white font-bold py-2 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Enregistrement..." : "Finaliser l'inscription"}
-          </button>
-        </div>
-      </form>
-    </div>
+    </form>
   );
 }
