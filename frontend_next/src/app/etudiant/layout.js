@@ -1,6 +1,6 @@
 export default function EtudiantLayout({ children }) {
   return (
-    <div className="antialiased font-sans bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+    <div className=" font-sans bg-white min-h-screen justify-center items-center ">
       {children}
     </div>
   );

@@ -1,16 +1,30 @@
-import api from "./api";
+import api from "@/services/api"; 
 
 const inscriptionService = {
   // Récupérer les UE filtrées
   getUEs: async (params) => {
-    const response = await api.get("/ues/", { params });
-    return response.data;
+    try {
+      console.log("Envoi requête GET UE avec param s:", params);
+      const response = await api.get("/notes/ues/filtrer/", { params });
+      console.log("Réponse UE reçue:", response.data);
+      return response.data; 
+    } catch (error) {
+      console.error("Erreur dans getUEs:", error);
+      throw error;
+    }
   },
 
   // Créer une inscription
   createInscription: async (data) => {
-    const response = await api.post("/inscriptions/", data);
-    return response.data;
+    try {
+      console.log("Envoi requête POST inscription:", data);
+      const response = await api.post("inscription/inscription/", data);
+      console.log("Réponse inscription reçue:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur dans createInscription:", error);
+      throw error;
+    }
   }
 };
 

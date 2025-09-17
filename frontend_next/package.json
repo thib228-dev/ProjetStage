@@ -11,11 +11,12 @@
   "dependencies": {
     "@geist-ui/react": "^2.2.5",
     "axios": "^1.11.0",
+    "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "lucide-react": "^0.525.0",
     "next": "15.4.7",
+    "node-fetch": "^3.3.2",
     "pdfmake": "^0.2.20",
-
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",

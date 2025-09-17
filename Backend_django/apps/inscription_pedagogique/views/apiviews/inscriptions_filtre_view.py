@@ -1,37 +1,98 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from apps.authentification import permissions
 from apps.inscription_pedagogique.models import Inscription
 from apps.utilisateurs.models import Etudiant
 from apps.utilisateurs.serializers import EtudiantSerializer
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+
 
 class FiltrerEtudiantsAPIView(APIView):
+    #permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        queryset = Etudiant.objects.all()
+        # Démarrer avec tous les étudiants
+        queryset = Etudiant.objects.select_related('utilisateur').distinct()
         
+        # Récupérer les paramètres de filtre
         departement = request.query_params.get('departement')
         filiere = request.query_params.get('filiere')
         parcours = request.query_params.get('parcours')
         annee_etude = request.query_params.get('annee_etude')
         annee_scolaire = request.query_params.get('annee_scolaire')
+        search = request.query_params.get('search')
+        
+        # Filtrer par département via les inscriptions
+        if departement and departement.lower() not in ['tout', '']:
+            queryset = queryset.filter(
+                inscriptions__filiere__departement__id=departement
+            ).distinct()
 
-        if departement and departement.lower() != 'tout':
-            queryset = queryset.filter(departement__id=departement)
+        # Filtrer par filière via les inscriptions
+        if filiere and filiere.lower() not in ['tout', '']:
+            queryset = queryset.filter(
+                inscriptions__filiere__id=filiere
+            ).distinct()
 
-        if filiere and filiere.lower() != 'tout':
-            queryset = queryset.filter(filiere__id=filiere)
+        # Filtrer par parcours via les inscriptions
+        if parcours and parcours.lower() not in ['tout', '']:
+            queryset = queryset.filter(
+                inscriptions__parcours__id=parcours
+            ).distinct()
 
-        if parcours and parcours.lower() != 'tout':
-            queryset = queryset.filter(parcours__id=parcours)
+        # Filtrer par année d'étude via les inscriptions
+        if annee_etude and annee_etude.lower() not in ['tout', '']:
+            queryset = queryset.filter(
+                inscriptions__annee_etude__id=annee_etude
+            ).distinct()
 
-        if annee_etude and annee_etude.lower() != 'tout':
-            queryset = queryset.filter(annee_etude=annee_etude)
+        # Filtrer par année scolaire/académique via les inscriptions
+        if annee_scolaire and annee_scolaire.lower() not in ['tout', '']:
+            queryset = queryset.filter(
+                inscriptions__anneeAcademique__id=annee_scolaire
+            ).distinct()
+        
+        # Recherche 
+        if search and search.strip():
+            search_query = Q()
+            search_terms = search.strip().split()
+            
+            for term in search_terms:
+                search_query |= (
+                    Q(utilisateur__first_name__icontains=term) |
+                    Q(utilisateur__last_name__icontains=term) |
+                    Q(utilisateur__email__icontains=term) |
+                    Q(num_carte__icontains=term) |
+                    Q(autre_prenom__icontains=term) |
+                    Q(lieu_naiss__icontains=term)
+                )
+            
+            queryset = queryset.filter(search_query).distinct()
 
-        if annee_scolaire and annee_scolaire.lower() != 'tout':
-            queryset = queryset.filter(annee_scolaire=annee_scolaire)
+        # Tri par défaut
+        ordering = request.query_params.get('ordering', 'utilisateur__last_name')
+        if ordering:
+            queryset = queryset.order_by(ordering)
 
-        serializer = EtudiantSerializer(queryset, many=True)
-        return Response(serializer.data)
+        # Pagination
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 10))
+        start = (page - 1) * page_size
+        end = start + page_size
+        
+        total_count = queryset.count()
+        etudiants_paginated = queryset[start:end]
+        
+        serializer = EtudiantSerializer(etudiants_paginated, many=True)
+        
+        return Response({
+            'count': total_count,
+            'results': serializer.data,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': (total_count + page_size - 1) // page_size
+        })
 
 # Liste des étudiants inscrits à une UE spécifique
 class EtudiantsParUEView(APIView):
@@ -42,8 +103,11 @@ class EtudiantsParUEView(APIView):
         inscriptions = Inscription.objects.filter(ues__id=ue_id)
         if not inscriptions.exists():
             return Response({"detail": "Aucune inscription trouvée pour cette UE."}, status=404)
+        
         # Extraire les étudiants à partir des inscriptions
-        etudiants = Etudiant.objects.filter(id__in=inscriptions.values_list('etudiant_id', flat=True))
+        etudiants = Etudiant.objects.filter(
+            id__in=inscriptions.values_list('etudiant_id', flat=True)
+        ).distinct()
 
         serializer = EtudiantSerializer(etudiants, many=True)
         return Response(serializer.data)

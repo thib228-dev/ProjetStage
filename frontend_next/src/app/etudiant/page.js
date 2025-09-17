@@ -1,11 +1,12 @@
-//"use client";
+"use client";
 
-//import React from "react";
+import React from "react";
 
-//export default function PageEtudiantHome() {
-//  return (
-//    <main className="p-6">
-//      <EtudiantHome />
- //   </main>
-//  );
-//}
+export default function PageEtudiantHome() {
+  return (
+    <main className="p-6">
+      <EtudiantHome />
+    </main>
+  );
+}
+

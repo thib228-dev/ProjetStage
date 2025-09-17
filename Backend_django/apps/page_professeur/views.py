@@ -14,24 +14,43 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 class UEViewSet(viewsets.ModelViewSet):
-    queryset = UE.objects.all()
+    queryset = UE.objects.all().order_by('code')
     serializer_class = UESerializer
-    permission_classes = [IsAdminOrRespNotesOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre']
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy']:
-            return [IsAdminOrRespNotesOnly()]
-        elif self.action in ['list','partial_update']:
-            if hasattr(self.request.user, 'professeur'):
-                prof = self.request.user.professeur
-                ues = prof.ues.all().values_list('id', flat=True)
-                self.queryset = UE.objects.filter(id__in=ues)
-                return [IsProfesseur()]
-            return [IsAdminOrRespNotesOnly()]
-        return super().get_permissions()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre'] 
+    # Création , modification , suppression , seulement Responsable de notes
+    if self.action in ['create', 'update', 'destroy']:
+        return [IsAdminOrRespNotesOnly()]
 
+    # Accès spécial pour les professeurs (ils ne voient que leurs UEs)
+    if self.action in ['list', 'partial_update']:
+        if hasattr(self.request.user, 'professeur'):
+            prof = self.request.user.professeur
+            ues = prof.ues.all().values_list('id', flat=True)
+            self.queryset = UE.objects.filter(id__in=ues)
+            return [IsProfesseur()]
+        return [IsAdminOrRespNotesOnly()]
+
+    # Lecture ouverte (exemple: filtrage, récupération publique des UEs)
+    if self.action in ['retrieve', 'filtrer']:
+        return [permissions.AllowAny()]
+
+    # Authentification par défaut pour le reste
+    return [permissions.IsAuthenticated()]
+
+
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        
+        # Filtrage optionnel pour les professeurs
+        if hasattr(self.request.user, 'professeur'):
+            return queryset.filter(professeurs=self.request.user.professeur)
+        
+        return queryset
+        
 # Récupération des étudiants inscrits à une UE donnée
     @action(detail=True, methods=['get'])
     def etudiantsInscrits(self, request, pk=None):
@@ -91,12 +110,35 @@ class UEViewSet(viewsets.ModelViewSet):
             })
 
         return Response(data)
+        
+    @action(detail=False, methods=['get'], url_path='filtrer')
+    def filtrer(self, request):
+        """
+        Récupérer les UEs filtrées par parcours, filière et année d’étude.
+        Exemple d’URL :
+        GET /notes/ues/filtrer/?parcours=1&filiere=2&annee_etude=3
+        """
+        parcours_id = request.query_params.get('parcours')
+        filiere_id = request.query_params.get('filiere')
+        annee_id = request.query_params.get('annee_etude')
+
+        queryset = UE.objects.all()
+
+        if parcours_id:
+            queryset = queryset.filter(parcours__id=parcours_id)
+        if filiere_id:
+            queryset = queryset.filter(filiere__id=filiere_id)
+        if annee_id:
+            queryset = queryset.filter(annee_etude__id=annee_id)
+
+        serializer = UESerializer(queryset.distinct(), many=True)
+        return Response(serializer.data)
 
 
 class EvaluationViewSet(viewsets.ModelViewSet):
     queryset = Evaluation.objects.all()
     serializer_class = EvaluationSerializer
- 
+
 class NoteViewSet(viewsets.ModelViewSet):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer

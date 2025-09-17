@@ -10,7 +10,6 @@ const links = [
   { href: "/administration/dashboard/gestion-ue", label: "Gestion UEs", icon: <FaBook /> },
   { href: "/administration/dashboard/affectation-ue", label: "Affectations d'UE ", icon: <FaProjectDiagram /> },
   { href: "/administration/dashboard/notes", label: "Gestion notes", icon: <FaClipboardList /> },
-   { href: "/administration/dashboard/articles", label: "Gestion articles", icon: <FaFileAlt /> },
   { href: "/administration/dashboard/statistiques", label: "Statistiques", icon: <FaChartBar /> },
 ];
 
