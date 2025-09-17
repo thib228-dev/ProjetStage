@@ -20,14 +20,14 @@ class UEViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            return [IsResponsableNotes()]
+            return [IsAdminOrRespNotesOnly()]
         elif self.action in ['list','partial_update']:
             if hasattr(self.request.user, 'professeur'):
                 prof = self.request.user.professeur
                 ues = prof.ues.all().values_list('id', flat=True)
                 self.queryset = UE.objects.filter(id__in=ues)
                 return [IsProfesseur()]
-            return [IsResponsableNotes()]
+            return [IsAdminOrRespNotesOnly()]
         return super().get_permissions()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['parcours', 'filiere', 'annee_etude', 'semestre'] 
@@ -196,12 +196,11 @@ class AffectationUeViewSet(viewsets.ModelViewSet):
     serializer_class = AffectationUeSerializer
     permission_classes = [IsAdminOrRespNotesOnly]
 
-    """  def get_permissions(self):
+    def get_permissions(self):
         if self.action in ['create', 'update', 'destroy']:
-            return [IsResponsableNotes()]
+            return [IsAdminOrRespNotesOnly()]
         elif self.action == 'list':
             if hasattr(self.request.user, 'professeur'):
                 return [IsProfesseur()]
-            return [IsResponsableNotes()]
+            return [IsAdminOrRespNotesOnly()]
         return super().get_permissions()
-    """
