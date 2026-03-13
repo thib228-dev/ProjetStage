@@ -6,7 +6,7 @@ from apps.inscription_pedagogique.serializers import AnneeAcademiqueSerializer, 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from django.db import transaction
 from django.contrib.auth.password_validation import validate_password
@@ -19,7 +19,16 @@ class AnneeAcademiqueViewSet(viewsets.ModelViewSet):
     queryset = AnneeAcademique.objects.all().order_by('libelle')
     serializer_class = AnneeAcademiqueSerializer
     pagination_class = None
-
+    
+    #Endpoint personnalisé pour récupérer une année académique par son id
+    @action(detail=True, methods=['get'], url_path='get-annee')
+    def get_annee(self, request, pk):
+        try:
+            annee = AnneeAcademique.objects.get(pk=pk)
+        except AnneeAcademique.DoesNotExist:
+            return Response({"error": "Année non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = AnneeAcademiqueSerializer(annee)
+        return Response(serializer.data)
 
 class SemestreViewSet(viewsets.ModelViewSet):
     queryset = Semestre.objects.all()
@@ -37,15 +46,7 @@ class ParcoursViewSet(viewsets.ModelViewSet):
             return [AllowAny()]  # Lecture publique
         return [IsAuthenticated()]  # Écriture protégée
 
-class FiliereViewSet(viewsets.ModelViewSet):
-    queryset = Filiere.objects.all()
-    serializer_class = FiliereSerializer
-    pagination_class = None
-    
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [AllowAny()]
-        return [IsAuthenticated()]
+
 
 class AnneeEtudeViewSet(viewsets.ModelViewSet):
     queryset = AnneeEtude.objects.all()
@@ -69,7 +70,35 @@ class DepartementViewSet(viewsets.ModelViewSet):
     filterset_fields = ['etablissement']
     pagination_class = None
 
+class FiliereViewSet(viewsets.ModelViewSet):
+    queryset = Filiere.objects.all()
+    serializer_class = FiliereSerializer
+    pagination_class = None
+    
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
+    #Endpoint personnalisé pour filtrer les filières par département en utilisant id du département en query paramètre
+    @action(detail=False, methods=['get'], url_path='by-departement')
+    def by_departement(self, request):
 
+        departement_id = request.query_params.get('departement')
+
+        if not departement_id:
+            return Response(
+                {"error": "departement requis"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        filieres = Filiere.objects.filter(departement=departement_id)
+
+        serializer = self.get_serializer(filieres, many=True)
+        return Response(serializer.data)
+
+
+    
 class InscriptionViewSet(viewsets.ModelViewSet):
     queryset = Inscription.objects.all()
     serializer_class = InscriptionSerializer

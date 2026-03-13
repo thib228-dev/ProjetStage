@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import EvaluationService from "@/services/evaluationsService";
 import { useRouter } from "next/navigation";
-import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
 
 function EvaluationUE({ ueId, onRetour }) {
   const [evaluations, setEvaluations] = useState([]);
@@ -11,27 +10,13 @@ function EvaluationUE({ ueId, onRetour }) {
   const [poids, setPoids] = useState("");
   const [error, setError] = useState("");
   const Router = useRouter();
-  const {annee} = useAnneeAcademique();
-  // Récupération des évaluations (sécurisée)
-  /* useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await EvaluationService.getEvaluationsByUE(ueId);
-        setEvaluations(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Erreur récupération évaluations :", err);
-        setEvaluations([]);
-      }
-    };
-    if (ueId) fetch();
-  }, [ueId]); */
+
+  // Récupération des évaluations 
   useEffect(() => {
   const fetchEvaluations = async () => {
     try {
       if (!ueId || !annee) return;
-      console.log("🔍 Chargement des évaluations pour l’UE :", ueId);
       const res = await EvaluationService.getEvaluationsByUE(ueId, annee.id);
-      console.log("✅ Évaluations chargées :", res);
       setEvaluations(Array.isArray(res) ? res: []);
     } catch (err) {
       console.error("Erreur récupération évaluations :", err);
@@ -40,7 +25,7 @@ function EvaluationUE({ ueId, onRetour }) {
 
   fetchEvaluations();
 
-  // ✅ Ajoute un listener pour recharger quand on revient sur la page
+  // Ajoute un listener pour recharger quand on revient sur la page
   const handleFocus = () => fetchEvaluations();
   window.addEventListener("focus", handleFocus);
 
@@ -78,7 +63,6 @@ function EvaluationUE({ ueId, onRetour }) {
         alert("Poids invalide.");
         return;
       }
-      console.log("Creating evaluation with type:", type, "poids:", poidsValue, "for UE ID:", ueId);
       const res = await EvaluationService.createEvaluation(type, poidsValue, ueId, annee.id);
 
       setEvaluations((prev) =>

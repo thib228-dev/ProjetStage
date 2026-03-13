@@ -58,29 +58,10 @@ export default function AffectationUE() {
     setShowUESelector(true);
   };
 
-  /* const handleValidate = async () => {
-    if (selectedProf && selectedUEs.length > 0) {
-      try {
-        // Affecter chaque UE sélectionnée
-        for (const ueId of selectedUEs) {
-          await AffectationService.affecter( ueId, selectedProf.id);
-        }
-
-        // Mettre à jour localement pour un retour immédiat
-        const nouvellesUes = ues.filter((ue) => selectedUEs.includes(ue.id));
-        setProfUes((prev) => [...prev, ...nouvellesUes]);
-        setSelectedUEs([]);
-        setShowUESelector(false);
-      } catch (error) {
-        console.error("Erreur lors de l'affectation :", error);
-      }
-    }
-  }; */
 const handleValidate = async ( ) => {
   if (!selectedProf || selectedUEs.length === 0) return;
   try {
     // Vérifier combien d'UEs sont sélectionnées
-    console.log("Nombre d'UEs à affecter :", selectedUEs.length);
 
     // Boucler sur chaque UE et appeler l'API
     for (let i = 0; i < selectedUEs.length; i++) {
@@ -143,7 +124,7 @@ const handleValidate = async ( ) => {
           {selectedProf ? (
             <div>
               <h3 className="text-lg font-semibold mb-4">
-                UEs de {selectedProf.titre} {selectedProf.utilisateur.last_name} {selectedProf.utilisateur.first_name}
+                UEs de {selectedProf.titre} {selectedProf.utilisateur.first_name} {selectedProf.utilisateur.last_name}
               </h3>
 
               <button

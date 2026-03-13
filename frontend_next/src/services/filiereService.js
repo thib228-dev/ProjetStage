@@ -2,7 +2,6 @@ import api from "./api";
 const FiliereService = {
   getFilieres: async () => {
     const response = await api.get("/inscription/filiere/");
-    console.log("FiliereService response data:", response.data);
     return response.data;
   },
   createFiliere: async (nom, abbreviation, departement, parcours) => {
@@ -18,7 +17,12 @@ const FiliereService = {
   deleteFiliere: async (id) => {
     const response = await api.delete(`/inscription/filiere/${id}/`);
     return response.data;
-  }
+  },
+  getFilieresByDepartement: async (departementId) => {
+  const response = await api.get(`/inscription/filiere/by-departement/?departement=${departementId}`);
+  return response.data;
+},
+
 };
 
 export default FiliereService;

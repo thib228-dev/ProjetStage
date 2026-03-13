@@ -2,6 +2,7 @@ import AnonymatService from "@/services/anonymatService";
 import SearchBar from "@/components/ui/SearchBar";
 import { useState } from "react";
 import {useRef} from "react";
+import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
 
 export default function SaisieAnonymat({ ueId, etudiants, setEtudiants,  evaluation,
  annee_id, periodeActive}) {
@@ -9,6 +10,7 @@ export default function SaisieAnonymat({ ueId, etudiants, setEtudiants,  evaluat
  // Tableau de références pour chaque champ
   const inputRefs = useRef([]);
   const [search, setSearch] = useState('');
+  const { anneeObject } = useAnneeAcademique();
 
   const etudiantsFiltres = etudiants.filter((etu) =>
   etu.nom?.toLowerCase().includes(search.toLowerCase()) ||
@@ -89,7 +91,7 @@ export default function SaisieAnonymat({ ueId, etudiants, setEtudiants,  evaluat
                 <td className="border px-2 py-1 text-center">
                 <input
                   ref={(el) => (inputRefs.current[index] = el)}
-                  disabled={noteSaisie}
+                  disabled={noteSaisie ||  !anneeObject?.est_active || anneeObject?.est_archivee}
                   type="text"
                   value={etu.num_anonymat}
                     onChange={(e) => {
@@ -107,7 +109,7 @@ export default function SaisieAnonymat({ ueId, etudiants, setEtudiants,  evaluat
                         }
 
                         handleChangeNumeroAnonyme(index, value);
-                        // 👇 Aller au champ suivant automatiquement
+                        //Aller au champ suivant automatiquement
                         if (inputRefs.current[index + 1]) {
                           inputRefs.current[index + 1].focus();
                         }

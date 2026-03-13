@@ -55,12 +55,10 @@ export default function AffectationUE() {
         if (window.confirm("Êtes-vous sûr de vouloir désaffecter cette UE ?")) {
 
         // ✅ DESAFFECTATION
-        await AffectationService.desaffecter(selectedProf.id, ue.id);
+        await AffectationService.desaffecter(ue.id, selectedProf.id);
 
         setProfUes((prev) => prev.filter((u) => u.id !== ue.id));
         setSelectedUEs((prev) => prev.filter((id) => id !== ue.id));
-
-        console.log("Désaffectée !");
         }
       } else {
         // ✅ AFFECTATION

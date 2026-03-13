@@ -8,12 +8,13 @@ from apps.utilisateurs.services.journal import enregistrer_action
 from apps.notifications.services.notification_service import NotificationService
 from apps.page_professeur.services import calculer_validation_ue, obtenir_resultats_etudiant, obtenir_ues_validees, calculer_tous_resultats_ue
 from .models import UE, AffectationUe, Evaluation, Note, Projet, Recherche, Article, Encadrement,PeriodeSaisie, Anonymat, ResultatUE
-from apps.inscription_pedagogique.models import Inscription
+from apps.inscription_pedagogique.models import Departement, Inscription
 from apps.authentification.permissions import IsAdminOrRespNotesOnly, IsProfOrSecretaire, IsProfesseur, IsResponsableNotes, IsOwnerOrReadOnlyForProf, IsSuperUserOrGestionnaire
 from .serializers import UESerializer,AffectationUeSerializer, EvaluationSerializer, NoteSerializer, ProjetSerializer, RechercheSerializer, ArticleSerializer, EncadrementSerializer, PeriodeSaisieSerializer, AnonymatSerializer, ResultatUESerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions 
-from apps.utilisateurs.models import Professeur, Etudiant
+from rest_framework.exceptions import PermissionDenied
+from apps.utilisateurs.models import Professeur, Etudiant, Secretaire, Gestionnaire, ChefServiceExam
 from apps.utilisateurs.serializers import EtudiantSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -66,7 +67,7 @@ class UEViewSet(viewsets.ModelViewSet):
         return queryset
 
    
-# Récupération des étudiants inscrits à une UE donnée selon l'année académique sélectionnée
+    # Récupération des étudiants inscrits à une UE donnée selon l'année académique sélectionnée
 
     @action(detail=True, methods=['get'])
     def etudiantsInscrits(self, request, pk=None):
@@ -75,7 +76,6 @@ class UEViewSet(viewsets.ModelViewSet):
         etudiantsInscrits = Etudiant.objects.filter(inscriptions__ues=ue, inscriptions__anneeAcademique=annee).distinct()
         serializer = EtudiantSerializer(etudiantsInscrits, many=True)
         return Response(serializer.data)
-    pagination_class = None
 
     
     # Récupérer toutes les évaluations liées à une UE donnée pendant l'année académique selectionnee
@@ -90,7 +90,6 @@ class UEViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         except UE.DoesNotExist:
             return Response({"error": "UE introuvable"}, status=404)
-    pagination_class = None
 
     # Nouvelle action pour récupérer les notes
     @action(detail=True, methods=["get"])
@@ -165,10 +164,9 @@ class UEViewSet(viewsets.ModelViewSet):
             })
 
         return Response(data)
-        pagination_class = None
 
     
-# Filtrer les UEs par parcours, filière et année d'étude    
+    # Filtrer les UEs par parcours, filière et année d'étude    
     @action(detail=False, methods=['get'], url_path='filtrer')
     def filtrer(self, request):
         """
@@ -191,10 +189,21 @@ class UEViewSet(viewsets.ModelViewSet):
 
         serializer = UESerializer(queryset.distinct(), many=True)
         return Response(serializer.data)
-    pagination_class = None
 
     
-    #  Calculer les résultats (BIEN INDENTÉ dans la classe)
+    # Ues par departement 
+    @action(detail=False, methods=['get'], url_path='par-departement')
+    def par_departement(self, request):
+        departement_id = request.query_params.get('departement_id')
+        """
+        Retourne la liste des UE d'un département donné.
+        L'ID du département est passé dans l'URL.
+        """
+        ues = UE.objects.filter(filiere__departement__id=departement_id).distinct()
+        serializer = self.get_serializer(ues, many=True)
+        return Response(serializer.data)
+
+    #  Calculer les résultats 
     @action(detail=True, methods=['post'], url_path='calculer-resultats')
     def calculer_resultats(self, request, pk=None):
         """
@@ -228,7 +237,6 @@ class UEViewSet(viewsets.ModelViewSet):
         ues = UE.objects.filter(evaluations__type="Examen", evaluations__anonyme=True, evaluations__annee_academique_id=annee_id).distinct()
         serializer = self.get_serializer(ues, many=True)
         return Response(serializer.data)
-    pagination_class = None
 
 
     #Endpoint pour recuperer les ues qui ont des evaluations anonymes et qui n'ont pas encore de notes saisies
@@ -260,7 +268,6 @@ class UEViewSet(viewsets.ModelViewSet):
             description="Liste des UEs avec examen anonyme sans notes consultée"
         )
         return Response(serializer.data)
-    pagination_class = None
     
     # ✅ Action pour récupérer l'état d'une UE spécifique
     @action(detail=True, methods=["get"], url_path="controle-notes")
@@ -268,7 +275,7 @@ class UEViewSet(viewsets.ModelViewSet):
         annee_id = request.query_params.get("annee")
 
         # ✅ Sécurité : seul responsable des notes ou admin
-        if not hasattr(request.user, "resp_notes") and not request.user.is_superuser:
+        if not hasattr(request.user, "resp_notes") and not hasattr(request.user, "chef_service_examen") and not request.user.is_superuser:
             return Response(
                 {"error": "Accès interdit"},
                 status=status.HTTP_403_FORBIDDEN
@@ -334,7 +341,94 @@ class UEViewSet(viewsets.ModelViewSet):
         return Response(etat_ue, status=status.HTTP_200_OK)
 
 
-  #  Obtenir les résultats d'une UE
+    # Pourcentage de complétude des notes par département
+    @action(detail=False, methods=["get"], url_path="controle-departements")
+    def controle_departements(self, request):
+
+        annee_id = request.query_params.get("annee")
+
+        if not annee_id:    
+            return Response({"error": "annee requise"}, status=400)
+
+        departements = Departement.objects.all()
+
+        resultats = []
+
+        for departement in departements:
+
+            ues = UE.objects.filter(
+                filiere__departement=departement
+            ).distinct()
+
+            ues_data = []
+            total_ues = 0
+            ues_completes = 0
+
+            for ue in ues:
+
+                etat_ue = {
+                    "ue_id": ue.id,
+                    "ue_libelle": ue.libelle,
+                    "ue_code": ue.code,
+                    "etat_global": "complet",
+                    "evaluations": [],
+                    "professeur": None
+                }                
+                # évaluations de l'année
+                evaluations = Evaluation.objects.filter(
+                    ue=ue,
+                    annee_academique_id=annee_id
+                )
+
+                for evaluation in evaluations:
+
+                    notes_exist = Note.objects.filter(
+                        evaluation=evaluation
+                    ).exists()
+
+                    if notes_exist:
+
+                        etat_ue["evaluations"].append({
+                            "evaluation_id": evaluation.id,
+                            "type": evaluation.type,
+                            "etat": "saisi"
+                        })
+
+                    else:
+
+                        etat_ue["evaluations"].append({
+                            "evaluation_id": evaluation.id,
+                            "type": evaluation.type,
+                            "etat": "manquant"
+                        })
+
+                        etat_ue["etat_global"] = "incomplet"
+
+                total_ues += 1
+
+                if etat_ue["etat_global"] == "complet":
+                    ues_completes += 1
+
+                ues_data.append(etat_ue)
+
+            pourcentage = 0
+            if total_ues > 0:
+                pourcentage = round((ues_completes / total_ues) * 100, 2)
+
+            resultats.append({
+                "departement_id": departement.id,
+                "departement_nom": departement.nom,
+                "pourcentage": pourcentage,
+                "total_ues": total_ues,
+                "ues_completes": ues_completes,
+                "ues": ues_data
+            })
+
+        return Response(resultats)
+
+
+   
+    # Obtenir les résultats d'une UE
     @action(detail=True, methods=['get'], url_path='resultats')
     def get_resultats(self, request, pk=None):
         """
@@ -355,6 +449,9 @@ class UEViewSet(viewsets.ModelViewSet):
             },
             'resultats': serializer.data
         })
+        
+    
+    
         
 
 class EvaluationViewSet(viewsets.ModelViewSet):
@@ -545,10 +642,17 @@ class NoteViewSet(viewsets.ModelViewSet):
             description="Une note a été créée avec succès"
         )
 
-    # ✅ UPDATE (PUT & PATCH)
+    # ✅ UPDATE (PUT & PATCH)       
     def perform_update(self, serializer):
-        note = serializer.save()
+        user = self.request.user
 
+        if not user.is_authenticated:
+            raise PermissionDenied("Authentification requise")
+
+        if user.role not in ["professeur", "secretaire"] and not user.is_superuser:
+            raise PermissionDenied("Accès interdit")
+
+        note = serializer.save()
         enregistrer_action(
             utilisateur=self.request.user,
             action="Modification d'une note",
@@ -689,38 +793,29 @@ class PeriodeSaisieViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return PeriodeSaisie.objects.all()
-        elif hasattr(user, 'resp_notes'):
-            return PeriodeSaisie.objects.filter(responsable=user.resp_notes)
-        elif hasattr(user, 'professeur'):
-            return PeriodeSaisie.objects.all() 
-        elif hasattr(user, 'secretaire'):
-            return PeriodeSaisie.objects.all()
-        return PeriodeSaisie.objects.none()
+        return PeriodeSaisie.objects.all()
+       
 
     
     def perform_create(self, serializer):
         user = self.request.user
+        print("USER:", user)
+        print("HAS chef_service_examen:", hasattr(user, 'chef_service_examen'))
 
-        # ✅ Enregistrement de la période
-        if hasattr(user, 'resp_notes'):
-            periode = serializer.save(responsable=user.resp_notes)
-
-        elif user.is_superuser:
+        if hasattr(user, 'chef_service_examen'):
+            periode = serializer.save(responsable=user.chef_service_examen)
+        elif user.is_superuser:                                   
             responsable_id = self.request.data.get('responsable')
             periode = serializer.save(responsable_id=responsable_id)
-
         else:
-            raise PermissionError("Tu n'as pas le droit de créer une période.")
+            raise PermissionDenied("Tu n'as pas le droit de créer une période.")  # ✅ DRF, pas PermissionError
 
-        # ✅ ENVOI DES NOTIFICATIONS AUX PROFESSEURS
+        # ✅ Notifications — s'exécute seulement si la création a réussi
         professeurs = Professeur.objects.all()
-
         message = (
-            "✅ Une nouvelle période de saisie des notes sera ouverte du " + str(periode.date_debut) + " au " + str(periode.date_fin) + "   . "
-            "Veuillez procéder à la saisie dans les délais."
+            "✅ Une nouvelle période de saisie des notes sera ouverte du "
+            + str(periode.date_debut) + " au " + str(periode.date_fin)
+            + ". Veuillez procéder à la saisie dans les délais."
         )
 
         NotificationService.send_to_many(
@@ -731,17 +826,36 @@ class PeriodeSaisieViewSet(viewsets.ModelViewSet):
 class AffectationUeViewSet(viewsets.ModelViewSet):
     queryset = AffectationUe.objects.all()
     serializer_class = AffectationUeSerializer
-    permission_classes = [IsSuperUserOrGestionnaire()]
+    permission_classes = [IsSuperUserOrGestionnaire]
     pagination_class = None
 
     def get_permissions(self):
-        if self.action in ['create', 'update', 'destroy']:
+
+        if self.action in ['create', 'update', 'destroy', 'delete']:
             return [IsSuperUserOrGestionnaire()]
+
         elif self.action == 'list':
             if hasattr(self.request.user, 'professeur'):
                 return [IsProfesseur()]
             return [IsSuperUserOrGestionnaire()]
+
         return super().get_permissions()
+    
+    # Endpoint pour supprimer une affectation d'UE à partir de l'ID de l'UE et de l'ID du professeur
+    @action(detail=False, methods=['post'], url_path='supprimer')
+    def supprimer_affectation(self, request):
+        ue_id = request.query_params.get('ue_id')
+        prof_id = request.query_params.get('prof_id')
+
+        if not ue_id or not prof_id:
+            return Response({"error": "ue_id et prof_id sont requis"}, status=400)
+
+        try:
+            affectation = AffectationUe.objects.get(ue__id=ue_id, professeur__id=prof_id)
+            affectation.delete()
+            return Response({"success": "Affectation supprimée"}, status=200)
+        except AffectationUe.DoesNotExist:
+            return Response({"error": "Affectation non trouvée"}, status=404)
         
  
 #  ResultatUE

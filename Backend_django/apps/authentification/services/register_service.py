@@ -1,6 +1,6 @@
 from apps.utilisateurs.models import (
     Utilisateur, Etudiant, Professeur, Secretaire,
-    RespInscription, ResponsableSaisieNote, Gestionnaire, ChefDepartement
+    RespInscription, ResponsableSaisieNote, Gestionnaire, ChefServiceExam,
 )
 from django.db import transaction
 
@@ -46,8 +46,8 @@ class RegisterService:
         
         elif role == "gestionnaire":
             profil = Gestionnaire.objects.create(utilisateur= utilisateur, **profil_data)
-        elif role == "chef_dpt":
-            profil = ChefDepartement.objects.create(utilisateur= utilisateur, **profil_data)
+        elif role == "chef_service_examen":
+            profil = ChefServiceExam.objects.create(utilisateur= utilisateur, **profil_data)
         else:
             raise ValueError(f"Gestion du rôle '{role}' non implémentée")
 

@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import authAPI from "@/services/authService";
+import DepartementService from "@/services/departementService";
 import { Radio } from "lucide-react";
 
 
 export default function RegisterForm() {
   const [role, setRole] = useState("");
+  const [departements, setDepartements] = useState([]);
   const [formData, setFormData] = useState({
     utilisateur: {
       username: "",
@@ -21,7 +23,7 @@ export default function RegisterForm() {
     date_naiss: "",
     lieu_naiss: "",
     titre: "",
-    
+    departement: ""
   });
 
   //const handleRoleChange = (e) => setRole(e.target.value);
@@ -66,7 +68,17 @@ export default function RegisterForm() {
 
   }
 };
-
+useEffect(() => {
+  const fetchDepartements = async () => {
+    try {
+      const res = await DepartementService.getDepartements();
+      setDepartements(res.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des départements :", error);
+    }
+  };
+  fetchDepartements();
+}, []);
 
   return (
     <form
@@ -93,6 +105,7 @@ export default function RegisterForm() {
           <option value="professeur">professeur</option>
           <option value="secretaire">Secrétaire</option>
           <option value="resp_inscription">Responsable Inscription</option>
+          <option value="chef_service_examen">Chef de Service d'Examen</option>
           <option value="resp_notes">Responsable Saisie Note</option>
           <option value="admin">Administrateur</option>
           <option value="gestionnaire">Gestionnaire</option>
@@ -226,6 +239,25 @@ export default function RegisterForm() {
             className="border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
             required
           />
+        </div>
+      )}
+      {/*selectionner le departement auquel est lié le responsable de saisie de note*/}
+      {role === "resp_notes" && (
+        <div>
+          <select
+          value={departements}
+          onChange={handleRoleChange}
+          required
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400"
+       
+          />
+          {departements.map((dep) => (
+            <option key={dep.id} value={dep.nom}>
+              {dep.nom}
+            </option>
+          ))}
+        <select/>
+
         </div>
       )}
 

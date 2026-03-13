@@ -6,9 +6,11 @@ import UEService from "@/services/ueService";
 import ParcoursService from "@/services/parcoursService";
 import AnneeEtudeService from "@/services/anneeEtudeService";
 import SemestreService from "@/services/semestreService";
+import DepartementSelect from "@/features/util/Departement";
 import { FaClipboardList, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 export default function Ues() {
+const [departement, setDepartement] = useState(null);
 const [filieres, setFilieres] = useState([]);
 const [parcours, setParcours] = useState([]);
 const [anneesEtude, setAnneesEtude] = useState([]);
@@ -26,21 +28,20 @@ const [selectedCourse, setSelectedCourse] = useState(null);
 const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 const [selectedUeId, setSelectedUeId] = useState(null);
 const router = useRouter();
-
+ 
 //recuperer les filieres
 useEffect(() => {
+ 
     FiliereService.getFilieres()
       .then((data) => setFilieres(data))
       .catch((err) => console.error(err));
-      console.log("Filieres data:", filieres);
+  
 }, []);
-
 //recuperer les parcours
 useEffect(() => {
     ParcoursService.getParcours()
       .then((data) => setParcours(data))
       .catch((err) => console.error(err));
-      console.log("Parcours data:", parcours);
 }, []);
 
 //recuperer les années d'étude
@@ -48,21 +49,18 @@ useEffect(() => {
     AnneeEtudeService.getAnneesEtude()
       .then((data) => setAnneesEtude(data))
       .catch((err) => console.error(err));
-      console.log("Annees d'etude data:", anneesEtude);
 }, []);
 //recuperer les semestres
 useEffect(() => {
     SemestreService.getSemestres()
       .then((data) => setSemestres(data))
       .catch((err) => console.error(err));
-      console.log("Semestres data:", semestres);
 }, []);
-// récupère les UEs du prof connecté
+// récupère les UEs par departement
 useEffect(() => {
    UEService.getAllUE()
       .then((data) => setCourses(data))
       .catch((err) => console.error(err));
-      console.log("Courses data:", courses);
   }, []);
 
 // Gestion du tri
@@ -83,7 +81,6 @@ useEffect(() => {
   const handleRowClick = (course) => {
     setSelectedCourse(course.code === selectedCourse?.code ? null : course);
     const SelectedUeId= course.id;
-    console.log("SelectedUeId:", SelectedUeId);
     setSelectedUeId(SelectedUeId);
     router.push(`/gestion-notes/dashboard/evaluations/${SelectedUeId}`);
   };
@@ -101,7 +98,6 @@ const filteredCourses = courses?.filter((c) => {
   const parcoursOk =
     !selectedParcours ||
     trouverObjetParId(parcours, c.parcours)?.libelle === selectedParcours;
-    console.log("ParcoursOk:", parcoursOk);
 
   const semestreOk =
     !selectedSemestre || trouverObjetParId(semestres, c.semestre)?.libelle === selectedSemestre;
@@ -126,11 +122,11 @@ const sortedCourses = [...(filteredCourses || [])].sort((a, b) => {
   });
 
   return (
-    <div className="bg-transparent  backdrop-blur-md   px-8 py-10 w-full  animate-fade-in">
+    <div className="bg-transparent  backdrop-blur-md   px-8 py-10 w-full  animate-fade-in text-black">
       {/* Titre avec année scolaire */}
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl font-bold text-blue-900">
-          Cours enseignés
+          Unités d'Enseignement 
         </h1>
       </div>
 
@@ -140,14 +136,15 @@ const sortedCourses = [...(filteredCourses || [])].sort((a, b) => {
           <FaClipboardList className="text-blue-700" />
           <span>Filtrer par</span>
         </h2>
+        <div>
+      <DepartementSelect onSelect={setDepartement} value={departement} />
+    </div>
         <select
           value={selectedFiliere}
           onChange={(e) => {
               const filiereObj = filieres.find(f => f.abbreviation === e.target.value);
               setSelectedFiliere(e.target.value);
-              console.log("Valeur sélectionnée:", e.target.value); 
               setSelectedFiliereObject(filiereObj);
-              console.log("Filiere choisie:", filiereObj);
           }}
           className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
@@ -165,7 +162,6 @@ const sortedCourses = [...(filteredCourses || [])].sort((a, b) => {
             const parcoursObj = parcours.find(p => p.libelle === e.target.value);
             setSelectedParcours(e.target.value)
             setSelectedParcoursObject(parcoursObj);
-             console.log("Parcours choisi:", parcoursObj); 
           }}
           className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
@@ -183,7 +179,6 @@ const sortedCourses = [...(filteredCourses || [])].sort((a, b) => {
             const anneeObj = anneesEtude.find(a => a.libelle === e.target.value);
             setSelectedAnneeEtude(e.target.value)
             setSelectedAnneeEtudeObject(anneeObj);
-            console.log("Année d'étude choisie:", anneeObj);
           } }
           className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >
@@ -201,7 +196,6 @@ const sortedCourses = [...(filteredCourses || [])].sort((a, b) => {
             const semestreObj = semestres.find(s => s.libelle === e.target.value);
             setSelectedSemestre(e.target.value)
             setSelectedSemestreObject(semestreObj);
-            console.log("Semestre choisi:", semestreObj);
           }}
           className="px-4 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
         >

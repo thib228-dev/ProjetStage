@@ -9,6 +9,7 @@ import AnneeEtudeService from "@/services/anneeEtudeService";
 import SemestreService from "@/services/semestreService";
 import NotificationService from "@/services/notificationService";
 import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
+import RespSaisieService from "@/services/respSaisieService";
 import { 
   FaClipboardList, 
   FaSort, 
@@ -35,18 +36,28 @@ export default function Notes() {
   const [infosUE, setInfosUE] = useState({});
   const [selectedUeId, setSelectedUeId] = useState(null);
   const [expandedRows, setExpandedRows] = useState({});
+  const [dptId, setDptId] = useState();
   const [openedUE, setOpenedUE] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const { annee } = useAnneeAcademique();
   const router = useRouter();
 
   // Récupération des données
-  // Filieres
+
+  // Département du gestionaire de notes connecté
   useEffect(() => {
-    FiliereService.getFilieres()
-      .then((data) => setFilieres(data))
+    RespSaisieService.getResponsableSaisieConnecte()
+      .then((data) => { 
+        setDptId(data.departement);
+      })
       .catch((err) => console.error(err));
   }, []);
+  // Filieres
+  useEffect(() => {
+    FiliereService.getFilieresByDepartement(dptId)
+      .then((data) => setFilieres(data))
+      .catch((err) => console.error(err));
+  }, [dptId]);
 
   // Parcours
   useEffect(() => {
@@ -68,27 +79,16 @@ export default function Notes() {
       .then((data) => setSemestres(data))
       .catch((err) => console.error(err));
   }, []);
-
-//Recupération des UEs
+//Recupération des UEs par département
   useEffect(() => {
-    UEService.getAllUE()
+    if (!dptId) return; // Attendre que dptId soit défini
+    UEService.getUEByDepartement(dptId)
       .then((data) => {
-        console.log("Courses data:", data);
         setCourses(data);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [dptId]);
 
-  // Recupêration des UEs avec controle des notes saisies
-  /*   useEffect(() => {
-    UEService.controleNotesSaisies(ueId)
-      .then((data) => {
-        console.log("Courses data:", data);
-        setInfosUE(data);
-      })
-      .catch((err) => console.error(err));
-  }, [ueId]);
- */
   const recupererInfosUE = async (ueId) => {
     if(!ueId || !annee) return;
     try {
@@ -96,7 +96,7 @@ export default function Notes() {
 
     setInfosUE((prev) => ({
       ...prev,
-      [ueId]: data,   // ✅ chaque UE stocke ses propres infos
+      [ueId]: data,   // chaque UE stocke ses propres infos
     }));
 
   } catch (error) {
@@ -188,7 +188,7 @@ export default function Notes() {
   });
 
   return (
-    <div className="bg-transparent backdrop-blur-md px-8 py-10 w-full animate-fade-in">
+    <div className="bg-transparent backdrop-blur-md px-8 py-10 w-full animate-fade-in text-black">
       {/* Titre avec année scolaire */}
       <div className="flex justify-between items-center mb-2">
         <h1 className="text-2xl font-bold text-blue-900">

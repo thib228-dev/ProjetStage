@@ -4,15 +4,18 @@ import { useEffect } from "react";
 import SaisieAnonymat from "./saisieAnonymat";
 import SaisieNotesSousAnonymat from "./saisieNotesSousAnonymat";
 import PeriodeActive from "../periodeActive";
+import {useAuth} from "@/contexts/AuthContext";
 
 export default function EvaluationExamen({ueId,evaluations, evaluation, etudiants, setEtudiants, calculerMoyenne, annee, semestre, annee_id }) {
   const [phase, setPhase] = useState("anonymat");
   const periodeActive = PeriodeActive();
+  const { user } = useAuth();
   const [role, setRole] = useState("");
+
 
   // Charger rôle depuis localStorage
   useEffect(() => {
-    const storedRole = localStorage.getItem("user_role");
+    const storedRole = user.role;
     if (storedRole) {
       setRole(storedRole);
     }

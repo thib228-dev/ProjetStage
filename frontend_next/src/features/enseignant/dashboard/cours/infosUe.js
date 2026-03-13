@@ -4,6 +4,7 @@ import UEService from "@/services/ueService";
 import { Save, AlertCircle, Edit2, Link as LinkIcon } from "lucide-react";
 import UELibelle from "@/features/util/UELibelle";
 import { useRouter } from "next/navigation";
+import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
 
 export default function InfosUe({ ueId }) {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function InfosUe({ ueId }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState(false);
+  const { anneeObject } = useAnneeAcademique();
   const router = useRouter();
 
   // Charger les infos actuelles de l’UE
@@ -70,14 +72,18 @@ export default function InfosUe({ ueId }) {
   return (
     <div>
     <div className="p-6 bg-white rounded-lg shadow-md mb-10">
+      {/* Titre et bouton d’accès aux évaluations de l’UE grisé si l'année academique est inactive ou archivée */} 
        <button
           onClick={() => router.push(`/service-examen/notes/mes-ues/${ueId}/evaluations`)}
-          className="ml-4 text-lg font-bold text-blue-800"
+          disabled={!anneeObject?.est_active || anneeObject?.est_archivee}
+          aria-disabled={!anneeObject?.est_active || anneeObject?.est_archivee}
+          title={!anneeObject?.est_active || anneeObject?.est_archivee ? "Année inactive ou archivée" : "Accéder aux évaluations"}
+          className={`ml-4 text-lg font-bold ${(!anneeObject?.est_active || anneeObject?.est_archivee) ? 'text-gray-400 cursor-not-allowed' : 'text-blue-800'}`}
         >
           Evaluations de l'UE <UELibelle ueId={ueId} />
         </button> 
     </div>
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-white rounded-lg shadow-md">   
       <h2 className="text-lg font-bold text-blue-800 mb-4">
         Informations supplémentaires de l'UE <UELibelle ueId={ueId} />
       </h2>
@@ -89,7 +95,7 @@ export default function InfosUe({ ueId }) {
         </div>
       )}
 
-      {/* Affichage des infos existantes si on n'est pas en édition */}
+      {/* Affichage des infos existantes si on n'est pas en édition */} 
       {!editing && hasInfo && (
         <div className="flex flex-col gap-4">
           {formData.description && (
@@ -125,7 +131,7 @@ export default function InfosUe({ ueId }) {
             </div>
           )}
 
-          {formData.lien_tds && (
+          {formData.lien_td && (
             <div className="flex items-center justify-between border p-3 rounded">
               <a
                 href={formData.lien_td}
@@ -167,7 +173,7 @@ export default function InfosUe({ ueId }) {
         </div>
       )}
 
-      {/* Formulaire si aucune info ou en édition */}
+      {/* Formulaire si aucune info ou en édition */} 
       {(editing || !hasInfo) && (
         <div className="flex flex-col gap-4 mt-2">
           <textarea

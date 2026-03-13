@@ -13,7 +13,7 @@ from apps.authentification.services.excel_import_service import ExcelUserImportS
 from apps.utilisateurs.models import (
     Etudiant, Professeur, Administrateur, 
     RespInscription, ResponsableSaisieNote, 
-    Secretaire, Gestionnaire, ChefDepartement
+    Secretaire, Gestionnaire, ChefServiceExam,
 )
 from django.http import HttpResponse
 import io
@@ -35,7 +35,7 @@ def importUsersFromExcelView(request):
     'resp_notes': ResponsableSaisieNote,
     'secretaire': Secretaire,
     'gestionnaire': Gestionnaire,
-    'chef_dpt': ChefDepartement,
+    'chef_service_examen': ChefServiceExam,
     }
 
     if 'file' not in request.FILES:

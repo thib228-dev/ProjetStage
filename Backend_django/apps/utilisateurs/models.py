@@ -13,7 +13,7 @@ class Utilisateur(AbstractUser):
         ('resp_inscription', 'Responsable des inscriptions'),
         ('secretaire', 'Secrétaire'),
         ('gestionnaire', 'Gestionnaire'),
-        ('chef_dpt', 'Chef de département'),
+        ('chef_service_examen', 'Chef du service des examens'),
     ]
     SEXE = [
         ('M', 'Masculin'),
@@ -61,8 +61,8 @@ class Utilisateur(AbstractUser):
     def is_gestionnaire(self):
         return hasattr(self, 'gestionnaire')
     @property
-    def is_chef_dpt(self):
-        return hasattr(self, 'chef_dpt')
+    def is_chef_service_exam(self):
+        return hasattr(self, 'chef_service_examen')
 
 
 # -----------------------------
@@ -94,6 +94,7 @@ class RespInscription(models.Model):
 
 class ResponsableSaisieNote(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="resp_notes")
+    departement = models.ForeignKey('inscription_pedagogique.Departement', on_delete=models.SET_NULL, null=True, related_name='responsables_notes')
 
 class Secretaire(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="secretaire")
@@ -101,8 +102,8 @@ class Secretaire(models.Model):
 class Gestionnaire(models.Model):
     utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="gestionnaire")
 
-class ChefDepartement(models.Model):
-    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="chef_dpt")
+class ChefServiceExam(models.Model):
+    utilisateur = models.OneToOneField(Utilisateur, on_delete=models.CASCADE, related_name="chef_service_examen")
 
 class JournalAction(models.Model):
     utilisateur = models.ForeignKey(

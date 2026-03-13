@@ -18,7 +18,7 @@ router.register(r'responsables-notes', views.ResponsableSaisieNoteViewSet)
 router.register(r'administrateurs', views.AdministrateurViewSet)
 router.register(r'gestionnaires', views.GestionnaireViewSet)
 router.register(r'journal', views.JournalActionViewSet)
-router.register(r'chefs-departement', views.ChefDepartementViewSet)
+router.register(r'chefs-service-examen', views.ChefServiceExamViewSet)
 
 urlpatterns = [
     # Routes personnalisées EN PREMIER (très important)

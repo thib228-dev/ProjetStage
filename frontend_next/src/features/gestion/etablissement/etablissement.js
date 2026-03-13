@@ -83,6 +83,12 @@ export default function GestionEtablissement({ parcoursOptions, filiereOptions, 
             key={section.id}
             section={section}
             onAdd={() => setActiveForm(section.id)}
+            setDepartements={setDepartements}
+            setFilieres={setFilieres}
+            setParcours={setParcours}
+            setSemestres={setSemestres}
+            setAnnees={setAnnees}
+            setAnneesAcademiques={setAnneesAcademiques}
           />
         ))}
       </div>
@@ -109,7 +115,7 @@ export default function GestionEtablissement({ parcoursOptions, filiereOptions, 
 function AcademicCard({ section, onAdd, onEdit, onDelete }) {
   const [open, setOpen] = useState(false);
   const handleDelete = async (sectionId, ItemId) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette" + (Item?.libelle || Item?.nom || "") + " ?")) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet élément ?")) {
       try {
         switch (sectionId) {
           case "departement":

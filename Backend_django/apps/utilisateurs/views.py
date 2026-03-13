@@ -7,14 +7,14 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from ..utilisateurs.models import (
-    JournalAction, Professeur, Etudiant,
-    RespInscription, ResponsableSaisieNote, Secretaire, Gestionnaire, ChefDepartement
+    ChefServiceExam, JournalAction, Professeur, Etudiant,
+    RespInscription, ResponsableSaisieNote, Secretaire, Gestionnaire, ChefServiceExam, Administrateur
 )
 from apps.utilisateurs.serializers import (
-    JournalActionSerializer, ProfesseurSerializer, EtudiantSerializer,
-    RespInscriptionSerializer, ResponsableSaisieNoteSerializer, SecretaireSerializer, GestionnaireSerializer, ChefDepartementSerializer
+    ChefServiceExamSerializer, JournalActionSerializer, ProfesseurSerializer, EtudiantSerializer,
+    RespInscriptionSerializer, ResponsableSaisieNoteSerializer, SecretaireSerializer, GestionnaireSerializer, ChefServiceExamSerializer, AdministrateurSerializer
 )
-from apps.authentification.permissions import IsIntranet, IsSelfOrAdmin, IsAdminOrReadOnly
+from apps.authentification.permissions import IsIntranet, IsSelfOrAdmin, IsAdminOrReadOnly, IsChefServiceExam
 from rest_framework.permissions import AllowAny
 from apps.utilisateurs.models import Utilisateur, Administrateur
 from apps.utilisateurs.serializers import (
@@ -287,6 +287,16 @@ class ResponsableSaisieNoteViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=400)
         return Response(serializer.data)
 
+    # Endpoint pour recuperer les infos d'un responsable de saisie de note connecté
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def get_me(self, request):
+        try:
+            resp_notes = request.user.resp_notes
+            serializer = self.get_serializer(resp_notes)
+            return Response(serializer.data)
+        except ResponsableSaisieNote.DoesNotExist:
+            return Response({"error": "Responsable de saisie de note non trouvé"}, status=404)
+
 # ----- ADMINISTRATEUR -----
 class AdministrateurViewSet(viewsets.ModelViewSet):
     queryset = Administrateur.objects.all().order_by('utilisateur__last_name')
@@ -333,21 +343,21 @@ class GestionnaireViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=400)
         return Response(serializer.data)
 
-#----- CHEF DEPARTEMENT -----
-class ChefDepartementViewSet(viewsets.ModelViewSet):
-    queryset = ChefDepartement.objects.all()
-    serializer_class = ChefDepartementSerializer
-    permission_classes = [IsAdminOrReadOnly]
+#----- CHEF SERVICE EXAM -----
+class ChefServiceExamViewSet(viewsets.ModelViewSet):
+    queryset = ChefServiceExam.objects.all()
+    serializer_class = ChefServiceExamSerializer
+    permission_classes = [IsChefServiceExam | IsAdminUser]
     
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and user.is_chef_dpt:
-            return ChefDepartement.objects.filter(utilisateur=user)
+        if user.is_authenticated and user.is_chef_service_examen:
+            return ChefServiceExam.objects.filter(utilisateur=user)
         return super().get_queryset()
     
     @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        instance = request.user.chef_dpt
+        instance = request.user.chef_service_examen
         serializer = self.get_serializer(instance, data=request.data if request.method == 'PUT' else None, partial=True)
         if serializer.is_valid():
             serializer.save()

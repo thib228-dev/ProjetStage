@@ -28,75 +28,71 @@ export default function Connexion() {
   ];
   
   async function handleFormSubmit(valeurs) {
-    setError("");
-    setLoading(true);
-    
-    try {
-      const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
-      setUser(data.user);
-   
-      // Gestion de la redirection pour les étudiants
-      if (data.user.role === "etudiant") {
-        // 1. Vérifier si demande d'inscription
-        const inscriptionRedirect = localStorage.getItem('inscription_redirect');
-        if (inscriptionRedirect) {
-          localStorage.removeItem('inscription_redirect');
-          router.push("/etudiant/inscription/redirect");
-          return;
-        }
-        
-        // 2. Vérifier si redirection vers une page protégée spécifique
-        const etudiantRedirect = localStorage.getItem('etudiant_redirect');
-        if (etudiantRedirect) {
-          const redirectPath = etudiantRedirect;
-          localStorage.removeItem('etudiant_redirect');
-          router.push(redirectPath);
-          return;
-        }
-        
-        // 3. Par défaut : aller sur le flux de vérification d'inscription
+  setError("");
+  setLoading(true);
+
+  try {
+    const data = await authAPI.login(valeurs.identifiant, valeurs.motdepasse);
+    setUser(data.user);
+
+    if (data.user.role === "etudiant") {
+
+      const inscriptionRedirect = localStorage.getItem('inscription_redirect');
+      if (inscriptionRedirect) {
+        localStorage.removeItem('inscription_redirect');
         router.push("/etudiant/inscription/redirect");
         return;
       }
-      
-      // Redirection pour les autres rôles
-      if (data.user.role === "professeur") {
-        router.push("/enseignant/dashboard");
-      } else if (data.user.role === "admin") {
-        router.push("/administration/dashboard");
-      } else if (data.user.role === "resp_notes") {
-        router.push("/gestion-notes/dashboard");
-      } else if (data.user.role === "resp_inscription") {
-        router.push("/resp_inscription/dashboard/gestionEtudiant");  
-      } else if (data.user.role === "gestionnaire") {
-        router.push("/gestion/dashboard/mon-etablissement");
-      } else if (data.user.role === "secretaire") {
-        router.push("/secretariat/dashboard");
-      } else {
-        router.push("/programmes");
+
+      const etudiantRedirect = localStorage.getItem('etudiant_redirect');
+      if (etudiantRedirect) {
+        const redirectPath = etudiantRedirect;
+        localStorage.removeItem('etudiant_redirect');
+        router.push(redirectPath);
+        return;
       }
-    } catch (error) {
-      console.error("Erreur de connexion", error);
-      
-      if (error.response) {
-        if (error.response.status === 401) {
-          setError("Identifiant ou mot de passe incorrect");
-        } else if (error.response.status === 400) {
-          setError("Veuillez remplir tous les champs");
-        } else if (error.response.status === 500) {
-          setError("Erreur serveur. Veuillez réessayer plus tard");
-        } else {
-          setError("Une erreur est survenue. Veuillez réessayer");
-        }
-      } else if (error.request) {
-        setError("Impossible de contacter le serveur. Vérifiez votre connexion internet");
-      } else {
-        setError("Une erreur inattendue est survenue");
-      }
-    } finally {
-      setLoading(false);
+
+      router.push("/etudiant/inscription/redirect");
+      return;
     }
+
+    const roleRoutes = {
+      professeur: "/enseignant/dashboard",
+      admin: "/administration/dashboard",
+      resp_notes: "/gestion-notes/dashboard",
+      resp_inscription: "/resp_inscription/dashboard/gestionEtudiant",
+      gestionnaire: "/gestion/dashboard/mon-etablissement",
+      secretaire: "/secretariat/dashboard",
+      chef_service_examen: "/gestion-service-examen/dashboard",
+    };
+
+    const route = roleRoutes[data.user.role] || "/programmes";
+    router.push(route);
+
+  } catch (error) {
+
+    console.error("Erreur de connexion", error);
+
+    if (error.response) {
+      if (error.response.status === 401) {
+        setError("Identifiant ou mot de passe incorrect");
+      } else if (error.response.status === 400) {
+        setError("Veuillez remplir tous les champs");
+      } else if (error.response.status === 500) {
+        setError("Erreur serveur. Veuillez réessayer plus tard");
+      } else {
+        setError("Une erreur est survenue. Veuillez réessayer");
+      }
+    } else if (error.request) {
+      setError("Impossible de contacter le serveur. Vérifiez votre connexion internet");
+    } else {
+      setError("Une erreur inattendue est survenue");
+    }
+
+  } finally {
+    setLoading(false);
   }
+}
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-12">

@@ -4,6 +4,10 @@ const AnneeAcademiqueService = {
     const response = await api.get("/inscription/annee-academique/");
     return response.data;
   },
+  getAnneeAcademiqueById: async (id) => {
+    const response = await api.get(`/inscription/annee-academique/${id}/get-annee/`);
+    return response.data;
+  },
   createAnneeAcademique: async (libelle) => {
     const data = { libelle };
     const response = await api.post("/inscription/annee-academique/", data);
@@ -14,6 +18,10 @@ const AnneeAcademiqueService = {
     const response = await api.put(`/inscription/annee-academique/${id}/`, data);
     return response.data;
   },
+  update: async (id, data) => {
+        const response = await api.patch(`inscription/annee-academique/${id}/`, data);
+        return response.data;
+    },
   deleteAnneeAcademique: async (id) => {
     const response = await api.delete(`/inscription/annee-academique/${id}/`);
     return response.data;

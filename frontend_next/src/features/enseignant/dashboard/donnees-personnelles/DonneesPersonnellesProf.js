@@ -7,7 +7,6 @@ export default function DonneesPersonnellesProf() {
   const [editMode, setEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [profId, setProfId] = useState(null);
   const [formData, setFormData] = useState({
     nom: "",
     prenom: "",
@@ -26,23 +25,15 @@ export default function DonneesPersonnellesProf() {
   // Charger les infos du professeur
   useEffect(() => {
     const fetchProf = async () => {
-      setIsLoading(true);
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) {
-        setIsLoading(false);
-        return;
-      }
-      const user = JSON.parse(storedUser);
-
       try {
         const prof = await ProfesseurService.getProfesseurConnecte();
         
         setFormData({
-          nom: user.last_name || "",
-          prenom: user.first_name || "",
-          email: user.email || "",
-          contact: user.telephone || "",
-          sexe: user.sexe || "",
+          nom: prof.utilisateur.last_name || "",
+          prenom: prof.utilisateur.first_name || "",
+          email: prof.utilisateur.email || "",
+          contact: prof.utilisateur.telephone || "",
+          sexe: prof.utilisateur.sexe || "",
           titre: prof.titre || "",
           bio: prof.bio || "",
           photo: prof.photo || null,

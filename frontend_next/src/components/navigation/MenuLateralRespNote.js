@@ -6,7 +6,6 @@ import { FaUser, FaBook, FaClipboardList, FaProjectDiagram, FaFileAlt, FaUsers, 
 const links = [
   { href: "/gestion-notes/dashboard/tableau-de-bord", label: "Tableau de bord", icon: <FaChartBar /> },
   { href: "/gestion-notes/dashboard/periodes-saisie-de-notes", label: "Periode de saisie", icon: <FaUser /> },
-  { href: "/gestion-notes/dashboard/evaluations", label: "Gestion des évaluations", icon: <FaFileAlt /> },
   { href: "/gestion-notes/dashboard/notes", label: "Notes", icon: <FaClipboardList /> },
   { href: "/gestion-notes/dashboard/listes-d-emmargement", label: "Listes d'emmargement", icon: <FaUsers /> },
 ];
@@ -14,11 +13,11 @@ const links = [
 export default function MenuLateralRespNote() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-black">
+    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-black text-black">
       <div className="flex-1 flex flex-col overflow-y-auto py-10 px-6">
         <div className="mb-8 flex items-center gap-2 justify-center">
           <span className="font-extrabold text-black text-2xl tracking-tight drop-shadow">EPL</span>
-          <span className="bg-blue-100 text-black font-bold px-2 py-1  text-xs shadow">Gestion Notes</span>
+          <span className="bg-blue-100 text-black font-bold px-2 py-1  text-xs shadow">Responsable de saisie de notes</span>
         </div>
         <nav className="flex flex-col gap-3 text-lg font-semibold">
           {links.map(link => (

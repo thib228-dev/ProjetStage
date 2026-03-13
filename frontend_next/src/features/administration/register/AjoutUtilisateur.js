@@ -101,7 +101,7 @@ export default function RegisterForm() {
           <option value="resp_notes">Responsable Saisie Note</option>
           <option value="admin">Administrateur</option>
           <option value="gestionnaire">Gestionnaire</option>
-          <option value="chef_dpt">Chef de Département</option>
+          <option value="chef_service_examen">Chef du Service des Examens</option>
         </select>
       </div>
 

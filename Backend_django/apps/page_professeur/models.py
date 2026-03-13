@@ -1,5 +1,5 @@
 from django.db import models
-from ..utilisateurs.models import Professeur, Etudiant, ResponsableSaisieNote
+from ..utilisateurs.models import Professeur, Etudiant,ChefServiceExam
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -38,7 +38,12 @@ class Evaluation(models.Model):
     poids = models.FloatField()
     anonyme = models.BooleanField(null=True, blank=True, default=None)
     annee_academique = models.ForeignKey("inscription_pedagogique.AnneeAcademique", on_delete=models.CASCADE)
-
+     
+    def save(self, *args, **kwargs):
+        # Si le type est Examen, anonyme est automatiquement True
+        if self.type == 'Examen':
+            self.anonyme = True
+        super().save(*args, **kwargs)
 
 class Anonymat(models.Model):
     etudiant = models.ForeignKey("utilisateurs.Etudiant", on_delete=models.CASCADE, related_name="anonymats")
@@ -100,7 +105,7 @@ class PeriodeSaisie(models.Model):
     date_debut = models.DateField()
     date_fin = models.DateField()
     responsable = models.ForeignKey(
-        ResponsableSaisieNote,
+        ChefServiceExam,
         on_delete=models.SET_NULL,
         related_name='periodes_saisie',
         null=True
@@ -128,7 +133,7 @@ class PeriodeSaisie(models.Model):
 class AffectationUe(models.Model):
     ue = models.ForeignKey(UE, on_delete=models.CASCADE, related_name='affectations')
     professeur = models.ForeignKey(Professeur, on_delete=models.CASCADE, related_name='affectations')
-    
+    unique_together = ('ue', 'professeur')
     
 class ResultatUE(models.Model):
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name='resultats_ues')

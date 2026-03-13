@@ -16,7 +16,7 @@ const links = [
 export default function MenuLateralProfesseur() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-black">
+    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-black text-black">
       {/* Ajouter la cloche de notification */}
       <div className="flex-1 flex flex-col overflow-y-auto py-10 px-6">
         <div className="mb-8 flex items-center gap-2 justify-center">

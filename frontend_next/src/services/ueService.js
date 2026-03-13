@@ -52,8 +52,18 @@ const UEService = {
   deleteUE: async (id) => {
     const response = await api.delete(`/notes/ues/${id}/`);
     return response.data;
+  },  
+  // Ues par departement
+  getUEByDepartement: async (departementId) => {
+    
+    const response = await api.get(`/notes/ues/par-departement/?departement_id=${departementId}`);
+    return response.data;
+  },
+  // Poucentage des ues dont les notes sont saisies par departement 
+  getPourcentageUEsSaisiesByDepartement: async (annee) => {
+    const response = await api.get(`/notes/ues/controle-departements/?annee=${annee}`);
+    return response.data;
   }
-};
 
-
+}
 export default UEService;

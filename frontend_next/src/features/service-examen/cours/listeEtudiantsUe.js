@@ -17,7 +17,8 @@ function ListeEtudiantsUE({ ueId }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   //const annee_id = localStorage.getItem("annee_id");
-  const { annee } = useAnneeAcademique();
+  const { anneeObject } = useAnneeAcademique();
+  const {annee} = useAnneeAcademique();
 
 
 
@@ -94,12 +95,16 @@ function ListeEtudiantsUE({ ueId }) {
             Pas d’évaluation pour cette UE.
           </p>
           <button
+            disabled={!anneeObject?.est_active || anneeObject?.est_archivee}
+            aria-disabled={!anneeObject?.est_active || anneeObject?.est_archivee}
+            title={!anneeObject?.est_active || anneeObject?.est_archivee ? "Année inactive ou archivée" : "Accéder aux évaluations"}
+            className={`ml-4 text-lg font-bold  ${(!anneeObject?.est_active || anneeObject?.est_archivee) ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600' }`}
+        
             onClick={() =>
               router.push(
                 `/service-examen/notes/mes-ues/${ueId}/evaluations`
               )
             }
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
           >
             ➕ En créer
           </button>
@@ -108,8 +113,11 @@ function ListeEtudiantsUE({ ueId }) {
 
        {!noEvaluation && (  
         <button
+          disabled={!anneeObject?.est_active || anneeObject?.est_archivé}
+          aria-disabled={!anneeObject?.est_active || anneeObject?.est_archivé}
+          title={!anneeObject?.est_active || anneeObject?.est_archivé ? "Année inactive ou archivée" : "Accéder aux évaluations"}
+          className={`ml-4 text-lg font-bold ${(!anneeObject?.est_active || anneeObject?.est_archivé) ? 'text-gray-400 cursor-not-allowed' : 'text-blue-800'}`}
           onClick={() => router.push(`/service-examen/notes/mes-ues/${ueId}/evaluationsModify`)}
-          className="ml-4 text-blue-600 underline"
         >
           Modifier les évaluations
         </button>

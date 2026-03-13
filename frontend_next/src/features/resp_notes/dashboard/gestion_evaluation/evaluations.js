@@ -39,7 +39,7 @@ export default function Evaluations({ ue_id }) {
 
     return (
         <div className="p-8 max-w-3xl mx-auto">
-  <h1 className="text-3xl font-bold mb-6 text-gray-800">
+  <h1 className="text-3xl font-bold mb-6 text-black">
     Gestion des Évaluations de l'UE <UELibelle ueId={ue_id} />
   </h1>
 

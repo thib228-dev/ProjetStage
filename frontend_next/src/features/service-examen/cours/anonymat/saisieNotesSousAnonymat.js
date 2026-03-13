@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import NoteService from "@/services/noteService";
 import Export from "../export";
 import SearchBar from "@/components/ui/SearchBar";
+import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
 
 export default function SaisieNotesSousAnonymat({
   etudiants,
@@ -16,6 +17,7 @@ export default function SaisieNotesSousAnonymat({
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const { anneeObject } = useAnneeAcademique();
   
   // Tableau de références pour chaque champ de note
   const inputRefs = useRef([]);
@@ -148,8 +150,7 @@ export default function SaisieNotesSousAnonymat({
                     ) : (
                       <span
                         onClick={() => {
-                          if (!periodeActive) {
-                            alert("La période de saisie n'est pas active.");
+                          if (!periodeActive || !anneeObject?.est_active || anneeObject?.est_archivee) {
                             return;
                           }
                           if (!etu.num_anonymat) {

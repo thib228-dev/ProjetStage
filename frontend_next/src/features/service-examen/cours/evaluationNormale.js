@@ -4,6 +4,7 @@ import NoteService from "@/services/noteService";
 import Export from "./export";
 import PeriodeActive from "./periodeActive";
 import SearchBar from "@/components/ui/SearchBar";
+import { useAnneeAcademique } from "@/contexts/AnneeAcademiqueContext";
 
 
 export default function EvaluationNormale({ueId, evaluations, evaluation, etudiants, setEtudiants, calculerMoyenne, annee, semestre }) {
@@ -11,6 +12,7 @@ export default function EvaluationNormale({ueId, evaluations, evaluation, etudia
   const [editIndex, setEditIndex] = useState(null);
   const [editedData, setEditedData] = useState({});
   const [search, setSearch] = useState('');
+  const { anneeObject } = useAnneeAcademique();
   
   console.log("anne dpuis liste eva norm", annee);
   // Tableau de références pour chaque champ de note
@@ -115,7 +117,7 @@ export default function EvaluationNormale({ueId, evaluations, evaluation, etudia
                     {editIndex === originalIndex ? (
                       <input
                         ref={(el) => (inputRefs.current[index] = el)}
-                        disabled={!periodeActive}
+                        disabled={!periodeActive || !anneeObject?.est_active || anneeObject?.est_archivé}
                         type="number"
                         min="0"
                         max="20"

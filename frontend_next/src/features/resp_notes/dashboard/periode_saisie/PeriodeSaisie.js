@@ -90,7 +90,7 @@ export default function PeriodeSaisie() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md">
+    <div className="p-6 bg-white rounded-xl shadow-md text-black">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-blue-800">
           Périodes de saisie de notes

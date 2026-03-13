@@ -21,9 +21,9 @@ export default function Contact() {
           </div>
           <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full shadow transition-all">Envoyer</button>
         </form>
-        <div className="text-gray-700 text-sm mb-2"><span className="font-bold">Adresse :</span> Université de Lomé, EPL, BP 1515, Lomé, Togo</div>
-        <div className="text-gray-700 text-sm mb-2"><span className="font-bold">Email :</span> contact@epl.ul</div>
-        <div className="text-gray-700 text-sm"><span className="font-bold">Téléphone :</span> +228 22 21 34 56</div>
+        <div className="text-gray-700 text-sm mb-2"><span className="font-bold">Adresse :</span> Université de Lomé, EPL, 1BP 1515 Lomé1-TOGO</div>
+        <div className="text-gray-700 text-sm mb-2"><span className="font-bold">Email :</span> epl_ul@univ-lome.tg</div>
+        <div className="text-gray-700 text-sm"><span className="font-bold">Téléphone :</span> +228 22 25 66 42</div>
       </div>
     </div>
   );

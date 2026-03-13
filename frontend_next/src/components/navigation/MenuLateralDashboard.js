@@ -43,7 +43,7 @@ export default function MenuLateralDashboard() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-56 h-screen sticky top-0 z-10 py-0 px-0 border-r border-blue-700">
+    <aside className="hidden md:flex flex-col gap-4 bg-white/70 backdrop-blur-2xl shadow-2xl w-56 h-screen sticky top-0 z-10 py-0 px-0 border-r border-blue-700 text-black">
       <div className="flex-1 flex flex-col overflow-y-auto py-8 px-4">
         <div className="mb-6 flex items-center gap-2 justify-center">
           <span className="font-extrabold text-blue-800 text-xl tracking-tight drop-shadow">
@@ -62,7 +62,7 @@ export default function MenuLateralDashboard() {
               className={
                 (pathname === link.href
                   ? "bg-transparent text-black font-semibold shadow-md border-l-2 border-blue-400"
-                  : "text-black hover:bg-gray-800/50 hover:text-white ") +
+                  : "text-black hover:bg-g ray-800/50 hover:text-white ") +
                 " px-3 py-2 transition-all duration-200 flex items-center gap-3 rounded-md"
               }
             >

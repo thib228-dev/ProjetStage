@@ -5,22 +5,22 @@ import { FaTachometerAlt, FaUserGraduate, FaChalkboardTeacher, FaBook, FaClipboa
 
 const links = [
   {href: "/gestion/dashboard/mon-etablissement", label: "Mon Etablissement", icon: <FaTachometerAlt /> },
-  { href: "/gestion/etudiants", label: "Gestion étudiants", icon: <FaUserGraduate /> },
-  { href: "/gestion/enseignants", label: "Enseignants", icon: <FaChalkboardTeacher /> },
   { href: "/gestion/dashboard/gestion-ue", label: "Gestion UEs", icon: <FaBook /> },
   { href: "/gestion/dashboard/affectation-ue", label: "Affectations d'UE ", icon: <FaProjectDiagram /> },
+  { href: "/gestion/dashboard/gestion-annee-universitaire", label: "Gestion Année Universitaire", icon: <FaClipboardList /> },
+
 ];
 
 export default function MenuLateralGestionnaire() {
   const pathname = usePathname();
   return (
-    <aside className="hidden md:flex flex-col gap-4 bg-white/700 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-blue-900">
+    <aside className="hidden md:flex flex-col gap-4 bg-white/700 backdrop-blur-2xl shadow-2xl w-64 h-screen sticky top-0 z-10 py-0 px-0  border-r border-blue-900 text-black">
       <div className="flex-1 flex flex-col overflow-y-auto py-10 px-6">
         <div className="mb-8 flex items-center gap-2 justify-center">
           <span className="font-extrabold text-blue-800 text-2xl tracking-tight drop-shadow">EPL</span>
           <span className="bg-teal-100 text-blue-700 font-bold px-2 py-1 rounded-lg text-xs shadow">Gestionnaire</span>
         </div>
-        <nav className="flex flex-col gap-8 text-lg font-semibold">
+        <nav className="flex flex-col gap-8 text-lg font-semibold mb-7">
           {links.map(link => (
             <Link
               key={link.href}

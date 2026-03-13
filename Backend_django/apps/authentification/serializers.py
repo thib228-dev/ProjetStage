@@ -12,7 +12,7 @@ from apps.utilisateurs.serializers import (
     ResponsableSaisieNoteSerializer,
     AdministrateurSerializer,
     GestionnaireSerializer,
-    ChefDepartementSerializer
+    ChefServiceExamSerializer,
 )
 from apps.utilisateurs.models import (
     Professeur,
@@ -21,8 +21,8 @@ from apps.utilisateurs.models import (
     ResponsableSaisieNote,
     Administrateur,
     Gestionnaire,
-    ChefDepartement
-)
+    ChefServiceExam,
+    )
 from django.contrib.auth.password_validation import validate_password
 # Association rôle → serializer correspondant
 ROLE_SERIALIZER_MAP = {
@@ -33,7 +33,7 @@ ROLE_SERIALIZER_MAP = {
     'resp_notes': ResponsableSaisieNoteSerializer,
     'admin': AdministrateurSerializer,
     'gestionnaire': GestionnaireSerializer,
-    'chef_dpt': ChefDepartementSerializer,
+    'chef_service_examen': ChefServiceExamSerializer,
 }
 
 # Serializer principal pour l'enregistrement
@@ -107,6 +107,12 @@ class PartialRegisterSerializer(serializers.Serializer):
 
         elif role == 'admin':
             Administrateur.objects.create(utilisateur=user)
+        
+        elif role == 'gestionnaire':
+            Gestionnaire.objects.create(utilisateur=user)
+        
+        elif role == 'chef_service_examen':
+            ChefServiceExam.objects.create(utilisateur=user)
 
         return user
 

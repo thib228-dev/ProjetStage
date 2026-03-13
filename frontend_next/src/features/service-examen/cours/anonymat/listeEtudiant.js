@@ -19,7 +19,7 @@ function ListeEtudiantsUE({ ueId }) {
     const fetchData = async () => {
       if (!ueId) return;
       try {
-        const res = await EtudiantService.getNotesByUE(ueId);
+        const res = await EtudiantService.getNotesByUE(ueId, annee_id);
         setEtudiants(res.etudiants);
         setEvaluations(res.evaluations);
         setAnnee(res.annee_academique);

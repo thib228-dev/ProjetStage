@@ -1,11 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from apps.inscription_pedagogique.models import Inscription
+from apps.inscription_pedagogique.models import Departement, Inscription
 from apps.page_professeur.models import Projet, Recherche, Article, Encadrement, Note
 from apps.page_professeur.serializers import AffectationUeSerializer, NoteSerializer
 from .models import (
-    JournalAction, Utilisateur, Etudiant, Professeur, Administrateur,
-    RespInscription, ResponsableSaisieNote, Secretaire, Gestionnaire, ChefDepartement
+    ChefServiceExam, JournalAction, Utilisateur, Etudiant, Professeur, Administrateur,
+    RespInscription, ResponsableSaisieNote, Secretaire, Gestionnaire
 )
 
 # -------- UTILS --------
@@ -247,6 +247,8 @@ class SecretaireSerializer(BaseProfilSerializer):
 # -------- RESPONSABLE INSCRIPTION --------
 class RespInscriptionSerializer(BaseProfilSerializer):
     role = serializers.CharField(default='resp_inscription', read_only=True)
+    departement = serializers.PrimaryKeyRelatedField(queryset=Departement.objects.all(), required=True)
+
 
     class Meta:
         model = RespInscription
@@ -283,13 +285,13 @@ class GestionnaireSerializer(BaseProfilSerializer):
         fields = '__all__'
         
 
-# -------- CHEF DEPARTEMENT --------
-class ChefDepartementSerializer(BaseProfilSerializer):
-    role = serializers.CharField(default='chef_dpt', read_only=True)
+# -------- CHEF SERVICE EXAM --------
+class ChefServiceExamSerializer(BaseProfilSerializer):
+    role = serializers.CharField(default='chef_service_examen', read_only=True)
 
     class Meta:
-        model = ChefDepartement
-        role = 'chef_dpt'
+        model = ChefServiceExam
+        role = 'chef_service_examen'
         fields = '__all__'
 
 

@@ -6,6 +6,7 @@ import UEService from "@/services/ueService";
 import ParcoursService from "@/services/parcoursService";
 import AnneeEtudeService from "@/services/anneeEtudeService";
 import SemestreService from "@/services/semestreService";
+import RespSaisieService from "@/services/respSaisieService";
 import { FaClipboardList, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 export default function CoursProf() {
@@ -22,25 +23,34 @@ const [selectedFiliereObject, setSelectedFiliereObject] = useState(null);
 const [selectedParcoursObject, setSelectedParcoursObject] = useState("");
 const [selectedAnneeEtudeObject, setSelectedAnneeEtudeObject] = useState("");
 const [selectedSemestreObject, setSelectedSemestreObject] = useState("");
+const [dptId, setDptId] = useState(null);
 const [selectedCourse, setSelectedCourse] = useState(null);
 const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 const [selectedUeId, setSelectedUeId] = useState(null);
 const router = useRouter();
 
+
+
+// Département du gestionaire de notes connecté
+  useEffect(() => {
+    RespSaisieService.getResponsableSaisieConnecte()
+      .then((data) => { 
+        setDptId(data.departement);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 //recuperer les filieres
 useEffect(() => {
-    FiliereService.getFilieres()
+    FiliereService.getFilieresByDepartement(dptId)
       .then((data) => setFilieres(data))
       .catch((err) => console.error(err));
-      console.log("Filieres data:", filieres);
-}, []);
+}, [dptId]);
 
 //recuperer les parcours
 useEffect(() => {
     ParcoursService.getParcours()
       .then((data) => setParcours(data))
       .catch((err) => console.error(err));
-      console.log("Parcours data:", parcours);
 }, []);
 
 //recuperer les années d'étude
@@ -48,22 +58,19 @@ useEffect(() => {
     AnneeEtudeService.getAnneesEtude()
       .then((data) => setAnneesEtude(data))
       .catch((err) => console.error(err));
-      console.log("Annees d'etude data:", anneesEtude);
 }, []);
 //recuperer les semestres
 useEffect(() => {
     SemestreService.getSemestres()
       .then((data) => setSemestres(data))
       .catch((err) => console.error(err));
-      console.log("Semestres data:", semestres);
 }, []);
-// récupère les UEs du prof connecté
+// récupère les UEs
 useEffect(() => {
-   UEService.getAllUE()
+   UEService.getUEByDepartement(dptId)
       .then((data) => setCourses(data))
       .catch((err) => console.error(err));
-      console.log("Courses data:", courses);
-  }, []);
+  }, [dptId]);
 
 // Gestion du tri
   const requestSort = (key) => {
@@ -83,7 +90,6 @@ useEffect(() => {
   const handleRowClick = (course) => {
     setSelectedCourse(course.code === selectedCourse?.code ? null : course);
     const SelectedUeId= course.id;
-    console.log("SelectedUeId:", SelectedUeId);
     setSelectedUeId(SelectedUeId);
     router.push(`/gestion-notes/dashboard/listes-d-emmargement/${SelectedUeId}/liste`);
   };

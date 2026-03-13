@@ -33,6 +33,12 @@ class IsEtudiant(BasePermission):
         return hasattr(request.user, 'etudiant')
     
 
+# Permissions pour le chef du service des examens
+class IsChefServiceExam(BasePermission):
+    def has_permission(self, request, view):
+        return hasattr(request.user, 'chef_service_exam')
+ 
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         return (

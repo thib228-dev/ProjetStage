@@ -14,7 +14,7 @@ export default function Header() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const { annee, setAnnee } = useAnneeAcademique();
+  const { annee, setAnnee, setAnneeObject } = useAnneeAcademique();
   const [openDropdown, setOpenDropdown] = useState(null);
   const [annees, setAnnees] = useState([]);
   const [anneeChoisie, setAnneeChoisie] = useState(null);
@@ -53,6 +53,8 @@ export default function Header() {
         return "/gestion-notes/dashboard/tableau-de-bord";
       case "gestionnaire":
         return "/gestion/dashboard/mon-etablissement";
+      case "chef_service_examen":
+        return "/gestion-service-examen/dashboard";
       default:
         return "/";
     }
@@ -140,6 +142,7 @@ export default function Header() {
       (a) => a.id === Number(e.target.value)
     );
     setAnnee(selected); 
+
   };
   if (loading) return null;
   return (
@@ -166,6 +169,7 @@ export default function Header() {
                 role === "secretaire" ||
                 role === "responsable inscriptions" ||
                 role === "gestionnaire" ||
+                role === "chef_service_exam" ||
                 role === "resp_notes") &&
               item.label === "Personnel"
             ) {
